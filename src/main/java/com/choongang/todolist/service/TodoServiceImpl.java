@@ -19,7 +19,8 @@ public class TodoServiceImpl implements TodoService {
     @Override
     public Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId) {
         Todo todo = Todo.createTodo(todoCreateRequestDto, userId);
-        todoDao.saveTodo(todo);
-        return null;
+        // todoDao에서 생성된 Todo가 있다면 리턴해주세요.
+        Todo saved = todoDao.saveTodo(todo);
+        return saved;
     }
 }
