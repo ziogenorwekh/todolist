@@ -1,6 +1,8 @@
 package com.choongang.todolist.service;
 
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.dto.TodoCreateRequestDto;
+
 
 import java.util.List;
 
@@ -9,13 +11,5 @@ import java.util.List;
  */
 public interface TodoService {
 
-    Todo createTodo(/*투두 생성에 필요한 파라미터를 입력해주세요.*/);
-
-    Todo updateTodo(/*투두 내용 수정에 필요한 파라미터를 입력해주세요.*/);
-
-    Todo findTodoById(Long todoId);
-
-    List<Todo> findAllTodos(Long userId);
-
-    void deleteTodoById(Long todoId);
+    Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId);
 }

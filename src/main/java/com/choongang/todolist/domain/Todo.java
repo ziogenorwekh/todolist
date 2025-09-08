@@ -1,5 +1,8 @@
 package com.choongang.todolist.domain;
 
+
+import com.choongang.todolist.dto.TodoCreateRequestDto;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,9 +10,11 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+
+
 @NoArgsConstructor
+@Setter
+@Getter
 public class Todo {
 
     private Long todoId;
@@ -41,4 +46,12 @@ public class Todo {
     /**
      * 투두 객체에서 수정이나 값 주입에 필요한 메서드들을 아래에 기입해주세요.
      */
+
+    public static Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId) {
+        Todo todo = new Todo(null,userId, todoCreateRequestDto.getTitle(),todoCreateRequestDto.getContent(),
+                todoCreateRequestDto.getPriority(), todoCreateRequestDto.getStatus(), todoCreateRequestDto.getDueAt(),
+                LocalDateTime.now(), null, null);
+        return todo;
+
+    }
 }

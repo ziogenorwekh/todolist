@@ -5,6 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+/**
+ * findUserByEmail, saveUser 예외처리 하지 않은 단순 예시코드입니다.
+ * 저 메서드들은 여러분들이 재작성해주시면 감사하겠습니다.
+ */
 @Repository
 public class UserDaoImpl implements UserDao {
 
