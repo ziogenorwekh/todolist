@@ -54,4 +54,24 @@ public class UserDaoImpl implements UserDao {
 
     }
 
+    @Override
+    public User findUserById(Long id) {
+        return null;
+    }
+
+    @Override
+    public void updateUser(User user) {
+
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+
+    }
+
+    @Override
+    public void deleteUserByEmail(String email) {
+
+    }
+
 }

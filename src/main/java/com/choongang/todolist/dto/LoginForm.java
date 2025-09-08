@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /***
+ * @ModelAttribute로, 필드에 필요한 값을 자동 지정하여 매핑합니다.
  * 로그인 폼 DTO
  * email과 password 필드를 포함
  */
