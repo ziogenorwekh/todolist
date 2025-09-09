@@ -16,4 +16,8 @@ public class LoginForm {
 
     private String email;
     private String password;
+
+    public String getUsername() {
+        return email;
+    }
 }

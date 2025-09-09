@@ -28,11 +28,11 @@ public class TodolistApplication {
      3. User 객체가 저장되었다는 메시지를 출력할거에요.
      4. @PostConstruct 어노테이션을 사용해서, 애플리케이션이 시작될 때, init() 메서드가 실행되도록 할거에요.
      */
-    @PostConstruct
-    public void init() {
-        User user = new User(1L, "username", "password",
-                "test@example.com", LocalDateTime.now(), LocalDateTime.now());
-        System.out.println("User created: " + user.getUsername());
-        userDao.saveUser(user);
-    }
+//    @PostConstruct
+//    public void init() {
+//        User user = new User(1L, "username", "password",
+//                "test@example.com", LocalDateTime.now(), LocalDateTime.now());
+//        System.out.println("User created: " + user.getUsername());
+//        userDao.insertUser(user);
+//    }
 }

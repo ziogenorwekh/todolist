@@ -2,13 +2,14 @@ package com.choongang.todolist.dao;
 
 import com.choongang.todolist.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
-/**
- * findUserByEmail, saveUser 예외처리 하지 않은 단순 예시코드입니다.
- * 저 메서드들은 여러분들이 재작성해주시면 감사하겠습니다.
- */
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 @Repository
 public class UserDaoImpl implements UserDao {
 
@@ -19,63 +20,69 @@ public class UserDaoImpl implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
-    /*
-    * 이메일로 유저를 찾을거에요.
-    * 1. 쿼리문을 작성할거에요.
-    * 2. jdbcTemplate 을 이용해서 쿼리문을 실행할거에요.
-    * 3. 결과를 User 객체로 매핑할거에요.
-    * 4. User 객체를 반환할거에요.
-     */
     @Override
-    public User findUserByEmail(String email) {
-        String sql = "select * from users where email = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
+    public int insertUser(User user) {
+        String sql = "INSERT INTO users (email, password, name, created_at) VALUES (?, ?, ?, ?)";
+
+        return jdbcTemplate.update(
+                sql,
+                user.getEmail(),
+                user.getPassword(),
+                user.getUsername(),
+                user.getCreateAt()
+        );
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        String sql = "SELECT * FROM users WHERE email = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, userRowMapper, email);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public User findById(Long id) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, userRowMapper, id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public int deleteUser(Long userId) {
+        String sql = "DELETE FROM users WHERE id = ?";
+
+        return jdbcTemplate.update(sql, userId);
+    }
+
+    @Override
+    public int saveUser(User user) {
+        return insertUser(user);
+    }
+
+    // RowMapper 구현
+    private final RowMapper<User> userRowMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet rs, int rowNum) throws SQLException {
             User user = new User();
             user.setUserId(rs.getLong("id"));
             user.setEmail(rs.getString("email"));
             user.setPassword(rs.getString("password"));
-            user.setUsername(rs.getString("username"));
-            user.setCreateAt(rs.getTimestamp("created_at").toLocalDateTime());
-            user.setUpdateAt(rs.getTimestamp("updated_at").toLocalDateTime());
+            user.setUsername(rs.getString("name"));
+
+            // created_at 처리 (null 체크)
+            if (rs.getTimestamp("created_at") != null) {
+                user.setCreateAt(rs.getTimestamp("created_at").toLocalDateTime());
+            }
+
             return user;
-        }, email);
-    }
-
-    /**
-    * 유저를 저장할거에요.
-     * 1. 쿼리문을 작성할거에요.
-     * 2. jdbcTemplate 을 이용해서 쿼리문을 실행할거
-     * 요.
-     * 3. 유저 객체를 저장할거에요.
-     * @param user 저장할 유저 객체에요.
-     */
-    @Override
-    public void saveUser(User user) {
-        String sql = "insert into users (name, email, password, created_at, updated_at) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, user.getUsername(), user.getEmail(), user.getPassword(),
-                user.getCreateAt(), user.getUpdateAt());
-
-    }
-
-    @Override
-    public User findUserById(Long id) {
-        return null;
-    }
-
-    @Override
-    public void updateUser(User user) {
-
-    }
-
-    @Override
-    public void deleteUserById(Long id) {
-
-    }
-
-    @Override
-    public void deleteUserByEmail(String email) {
-
-    }
-
+        }
+    };
 }

@@ -22,6 +22,9 @@
     </div>
     <p class="text-danger mt-2" th:if="${error}" th:text="${error}"></p>
   </form>
+  <div class="text-center mt-3">
+    <p>계정이 없으신가요? <a th:href="@{/register}" class="text-decoration-none">회원가입하기</a></p>
+  </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
