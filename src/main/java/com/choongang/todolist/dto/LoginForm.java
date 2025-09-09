@@ -3,6 +3,7 @@ package com.choongang.todolist.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /***
  * @ModelAttribute로, 필드에 필요한 값을 자동 지정하여 매핑합니다.
@@ -10,6 +11,7 @@ import lombok.NoArgsConstructor;
  * email과 password 필드를 포함
  */
 @Getter
+@Setter // 아이거 Setter 빼먹었음
 @NoArgsConstructor
 @AllArgsConstructor
 public class LoginForm {
