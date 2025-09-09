@@ -1,17 +1,43 @@
 package com.choongang.todolist.service;
 
+import com.choongang.todolist.dao.UserDao;
 import com.choongang.todolist.domain.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-/***
- * 메서드를 수정해야 한다면, 수정해도 좋습니다. 해당 인터페이스들의 메서드는 예시입니다.
- */
-public interface UserService {
+import java.util.Optional;
 
-    User createUser(/*유저 생성에 필요한 파라미터를 입력해주세요.*/);
+@Service
+public class UserService {
 
-    User updateUser(/*유저 업데이트에 필요한 파라미터를 입력해주세요.*/);
+    private final UserDao userDao;
 
-    User findUserById(Long id);
+    @Autowired
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
 
-    void deleteUser(Long id);
+    /**
+     * 사용자 ID(username)와 비밀번호로 로그인을 처리합니다.
+     *
+     * @param username 로그인할 사용자 ID
+     * @param password 입력된 비밀번호
+     * @return 로그인이 성공하면 User 객체를, 실패하면 Optional.empty()를 반환합니다.
+     */
+    public Optional<User> login(String username, String password) {
+        // 1. username으로 사용자를 조회합니다.
+        Optional<User> userOptional = userDao.findByUsername(username);
+
+        // 2. 사용자가 존재하고 비밀번호가 일치하는지 확인합니다.
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            // 실제 구현에서는 암호화된 비밀번호를 비교해야 합니다.
+            if (user.getPassword().equals(password)) {
+                return userOptional; // 로그인 성공
+            }
+        }
+
+        // 3. 사용자 정보가 없거나 비밀번호가 일치하지 않으면 로그인 실패
+        return Optional.empty();
+    }
 }

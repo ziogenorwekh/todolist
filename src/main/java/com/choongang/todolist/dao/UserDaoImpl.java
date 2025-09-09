@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public class UserDaoImpl implements UserDao {
 
@@ -15,48 +17,36 @@ public class UserDaoImpl implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
-    /*
-    * 이메일로 유저를 찾을거에요.
-    * 1. 쿼리문을 작성할거에요.
-    * 2. jdbcTemplate 을 이용해서 쿼리문을 실행할거에요.
-    * 3. 결과를 User 객체로 매핑할거에요.
-    * 4. User 객체를 반환할거에요.
-     */
     @Override
-    public User findUserByEmail(String email) {
-        String sql = "select * from users where email = ?";
-        return jdbcTemplate.queryForObject(sql, (rs, rowNum) -> {
-            User user = new User();
-            user.setUserId(rs.getLong("id"));
-            user.setEmail(rs.getString("email"));
-            user.setPassword(rs.getString("password"));
-            user.setUsername(rs.getString("username"));
-            user.setCreateAt(rs.getTimestamp("created_at").toLocalDateTime());
-            user.setUpdateAt(rs.getTimestamp("updated_at").toLocalDateTime());
-            return user;
-        }, email);
+    public Optional<User> findByUsername(String username) {
+        String sql = "SELECT user_id, username, password, email, create_at, update_at FROM users WHERE username = ?";
+        try {
+            User user = jdbcTemplate.queryForObject(sql,
+                    (rs, rowNum) -> {
+                        User u = new User();
+                        u.setUserId(rs.getLong("user_id"));
+                        u.setUsername(rs.getString("username"));
+                        u.setPassword(rs.getString("password"));
+                        u.setEmail(rs.getString("email"));
+                        u.setCreateAt(rs.getTimestamp("create_at").toLocalDateTime());
+                        u.setUpdateAt(rs.getTimestamp("update_at").toLocalDateTime());
+                        return u;
+                    },
+                    username);
+            return Optional.ofNullable(user);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 
-    /**
-    * 유저를 저장할거에요.
-     * 1. 쿼리문을 작성할거에요.
-     * 2. jdbcTemplate 을 이용해서 쿼리문을 실행할거
-     * 요.
-     * 3. 유저 객체를 저장할거에요.
-     * @param user 저장할 유저 객체에요.
-     */
     @Override
     public void saveUser(User user) {
-        String sql = "insert into users (name, email, password, created_at, updated_at) values (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, user.getUsername(), user.getEmail(), user.getPassword(),
-                user.getCreateAt(), user.getUpdateAt());
-
     }
 
     @Override
-    public User findUserById(Long id) {
-        return null;
+    public Optional<User> findUserById(Long id) {
+
+        return Optional.empty();
     }
 
     @Override
@@ -73,5 +63,4 @@ public class UserDaoImpl implements UserDao {
     public void deleteUserByEmail(String email) {
 
     }
-
 }
