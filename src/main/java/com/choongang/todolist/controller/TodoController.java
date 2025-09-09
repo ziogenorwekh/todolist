@@ -1,11 +1,14 @@
 package com.choongang.todolist.controller;
 
 import com.choongang.todolist.service.TodoService;
-import org.springframework.beans.factory.annotation.Autowired;
+
+import java.time.LocalDateTime;
+
 import org.springframework.stereotype.Controller;
 
 
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.domain.TodoStatus;
 import com.choongang.todolist.domain.User;
 import com.choongang.todolist.dto.TodoCreateRequestDto;
 import jakarta.servlet.http.HttpSession;
@@ -15,6 +18,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 @Controller
@@ -22,7 +27,6 @@ public class TodoController {
 
     private final TodoService todoService;
 
-    @Autowired
     public TodoController(TodoService todoService) {
         this.todoService = todoService;
     }
@@ -57,5 +61,33 @@ public class TodoController {
         model.addAttribute("todoCreateRequestDto", new TodoCreateRequestDto());
         return "/todo/createTodo";
     }
-
+    @GetMapping("/todo/detail/{id}")
+    public String detail(@RequestParam Long id, Model model,HttpSession session) {
+    	Long todoUserid = todoService.findById(id).getUserId();
+    	Object user = session.getAttribute("user");
+        if (user == null) {
+            model.addAttribute("error", "로그인을 하고 이용하세요.");
+            return "redirect:/";
+        }
+        Long userId = null;
+        if (user instanceof User) {
+            userId = ((User) user).getUserId();
+        }
+        if (!todoUserid.equals(userId)) {
+			return "404";
+		}
+    	Todo todo = todoService.findById(id);
+    	model.addAttribute("todo", todo);
+        return "detail";
+    }
+    @PostMapping("/todo/detail/{id}")
+    public String confirm(Long id) {
+    	Todo todo = todoService.findById(id);
+    	if (todo.getStatus().equals(TodoStatus.TODO)) {
+			todo.setUpdatedAt(LocalDateTime.now());
+		} else if (!todo.getStatus().equals(TodoStatus.DONE)) {
+			todo.setCompletedAt(LocalDateTime.now());
+		}
+    	return "detail";
+    }
 }
