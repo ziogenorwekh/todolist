@@ -1,9 +1,7 @@
 package com.choongang.todolist.domain;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.choongang.todolist.dto.UserCreateRequestDto;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -19,6 +17,7 @@ public class User {
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 
+    @Builder
     public User(Long userId, String username, String password, String email,
                 LocalDateTime createAt, LocalDateTime updateAt) {
         this.userId = userId;
@@ -29,8 +28,16 @@ public class User {
         this.updateAt = updateAt;
     }
 
-    /**
-     * 유저 객체에서 수정이나 값 주입에 필요한 메서드들을 아래에 기입해주세요.
-     */
+
+    // 도메인에서 직접 생성하는 메서드를 작성할 수 있습니다.
+    public static User createUser(UserCreateRequestDto userCreateRequestDto) {
+        return User.builder()
+                .username(userCreateRequestDto.getName())
+                .password(userCreateRequestDto.getPassword())
+                .email(userCreateRequestDto.getEmail())
+                .createAt(LocalDateTime.now())
+                .updateAt(null)
+                .build();
+    }
 
 }
