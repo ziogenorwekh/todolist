@@ -1,17 +1,17 @@
 package com.choongang.todolist.service;
 
 import com.choongang.todolist.domain.User;
+import com.choongang.todolist.dto.UserCreateRequestDto;
 
-/***
- * 메서드를 수정해야 한다면, 수정해도 좋습니다. 해당 인터페이스들의 메서드는 예시입니다.
- */
 public interface UserService {
 
-    User createUser(/*유저 생성에 필요한 파라미터를 입력해주세요.*/);
+    /**
+     * 새로운 사용자 생성
+     */
+    User createUser(UserCreateRequestDto userCreateRequestDto);
 
-    User updateUser(/*유저 업데이트에 필요한 파라미터를 입력해주세요.*/);
-
-    User findUserById(Long id);
-
-    void deleteUser(Long id);
+    /**
+     * 사용자 삭제
+     */
+    void deleteUser(Long userId, String password);
 }
