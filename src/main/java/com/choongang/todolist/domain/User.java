@@ -30,14 +30,14 @@ public class User {
 
 
     // 도메인에서 직접 생성하는 메서드를 작성할 수 있습니다.
-    public static User createUser(UserCreateRequestDto userCreateRequestDto) {
-        return User.builder()
-                .username(userCreateRequestDto.getName())
-                .password(userCreateRequestDto.getPassword())
-                .email(userCreateRequestDto.getEmail())
-                .createAt(LocalDateTime.now())
-                .updateAt(null)
-                .build();
-    }
+//    public static User createUser(UserCreateRequestDto userCreateRequestDto) {
+//        return User.builder()
+//                .username(userCreateRequestDto.getName())
+//                .password(userCreateRequestDto.getPassword())
+//                .email(userCreateRequestDto.getEmail())
+//                .createAt(LocalDateTime.now())
+//                .updateAt(null)
+//                .build();
+//    }
 
 }

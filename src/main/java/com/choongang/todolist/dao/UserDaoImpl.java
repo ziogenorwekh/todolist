@@ -73,6 +73,7 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+
     @Override
     public int deleteUser(Long userId) {
         String sql = "DELETE FROM users WHERE id = ?";
