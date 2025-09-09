@@ -11,5 +11,6 @@ public interface TodoDao {
 
     Todo saveTodo (Todo todo);
     Todo findTodoById(Long id);
+    Todo updateTodo (Todo todo);
 }
 
