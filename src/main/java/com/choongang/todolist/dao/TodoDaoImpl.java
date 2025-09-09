@@ -1,7 +1,6 @@
 package com.choongang.todolist.dao;
 
 import com.choongang.todolist.domain.Todo;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,7 +17,6 @@ public class TodoDaoImpl implements TodoDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    @Autowired
     public TodoDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -47,6 +45,16 @@ public class TodoDaoImpl implements TodoDao {
 //        }, keyHolder);
         // 우리는 키 홀더에서 생성된 key 값을 todo에 다시 세팅해서 리턴할 거에요.
 //        todo.setTodoId(keyHolder.getKey().longValue());
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
+//        jdbcTemplate.update(con -> {
+//            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+//            ps.setLong(1, todo.getTodoId());
+//            ps.setString(2, todo.getTitle());
+//            ps.setString(3, todo.getContent());
+//            ps.setString(4, todo.getPriority().name());
+//            ps.setString(5, todo.getStatus().name());
+//            ps.setTimestamp(6, todo);
+//        }, keyHolder);
         jdbcTemplate.update(sql, todo.getUserId(), todo.getTitle(), todo.getContent(), todo.getPriority(),
                 todo.getStatus(), todo.getDueAt(), todo.getCreatedAt(), todo.getUpdatedAt(), todo.getCompletedAt());
         return todo;
@@ -66,6 +74,16 @@ public class TodoDaoImpl implements TodoDao {
 //        } catch (/*데이터베이스에서 조회 했을 때 결과가 존재하지 않는다면 해당 에러값을 던집니다.*/EmptyResultDataAccessException e) {
 //            return null;
 //        }
-        return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Todo.class), id);
+        try {
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Todo.class), id);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Todo updateTodo(Todo todo) {
+        String sql = "update todos";
+        return null;
     }
 }
