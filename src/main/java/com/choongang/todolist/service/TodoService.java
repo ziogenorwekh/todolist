@@ -14,6 +14,6 @@ public interface TodoService {
 
     Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId);
 
-    Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId);
+    Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId, Long userId);
 }
 

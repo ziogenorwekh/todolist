@@ -1,10 +1,8 @@
 package com.choongang.todolist.dto;
 
 import com.choongang.todolist.domain.Priority;
-import com.choongang.todolist.domain.Todo;
 import com.choongang.todolist.domain.TodoStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;

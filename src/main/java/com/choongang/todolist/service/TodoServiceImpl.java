@@ -4,6 +4,7 @@ import com.choongang.todolist.dao.TodoDao;
 import com.choongang.todolist.domain.Todo;
 import com.choongang.todolist.dto.TodoCreateRequestDto;
 import com.choongang.todolist.dto.TodoUpdateRequestDto;
+import com.choongang.todolist.exception.TodoOwnershipException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,26 +22,16 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId) {
+    public Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId, Long userId) {
         Todo todo = todoDao.findTodoById(todoId);
-        if (todoUpdateRequestDto.getTitle() != null) {
-            todo.setTitle(todoUpdateRequestDto.getTitle());
+        if (!todo.getUserId().equals(userId)) {
+            throw new TodoOwnershipException("Todo owner is unauthorized");
         }
-        if (todoUpdateRequestDto.getContent() != null) {
-            todo.setContent(todoUpdateRequestDto.getContent());
-        }
-        if (todoUpdateRequestDto.getPriority() != null) {
-            todo.setPriority(todoUpdateRequestDto.getPriority());
-        }
-        if (todoUpdateRequestDto.getStatus() != null) {
-            todo.setStatus(todoUpdateRequestDto.getStatus());
-        }
-        if (todoUpdateRequestDto.getDueAt() != null) {
-            todo.setDueAt(todoUpdateRequestDto.getDueAt());
-        }
-        if (todoUpdateRequestDto.getCompletedAt() != null) {
-            todo.setCompletedAt(todoUpdateRequestDto.getCompletedAt());
-        }
+        todo.setTitle(todoUpdateRequestDto.getTitle());
+        todo.setContent(todoUpdateRequestDto.getContent());
+        todo.setPriority(todoUpdateRequestDto.getPriority());
+        todo.setStatus(todoUpdateRequestDto.getStatus());
+        todo.setDueAt(todoUpdateRequestDto.getDueAt());
         return todoDao.updateTodo(todo);
     }
 }
