@@ -26,6 +26,7 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.springframework.boot:spring-boot-starter-security' // JHE
     implementation 'org.springframework.boot:spring-boot-starter-web'
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-jdbc
     implementation 'org.springframework.boot:spring-boot-starter-validation'    //홍종학 임시 추가

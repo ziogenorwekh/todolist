@@ -1,13 +1,24 @@
 package com.choongang.todolist.controller;
 
 import com.choongang.todolist.service.TodoService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 
+import java.time.LocalDate;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.domain.TodoStatus;
 import com.choongang.todolist.domain.User;
+import com.choongang.todolist.dto.PageResponse;
 import com.choongang.todolist.dto.TodoCreateRequestDto;
+import com.choongang.todolist.dto.TodoListSelectDto;
+import com.choongang.todolist.dto.TodoSearchCond;
+
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.ui.Model;
@@ -15,6 +26,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 
 @Controller
@@ -56,6 +68,38 @@ public class TodoController {
     public String createTodo(Model model) {
         model.addAttribute("todoCreateRequestDto", new TodoCreateRequestDto());
         return "/todo/createTodo";
+    }
+    
+    /** 로그인 사용자 To-do 리스트 조회 */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/todos")
+    public String list(@AuthenticationPrincipal(expression = "username") Long userId,
+                       @RequestParam(required = false) TodoStatus status,
+                       @RequestParam(required = false) String keyword,
+                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueFrom,
+                       @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueTo,
+                       @RequestParam(defaultValue = "createdAt") String sort,
+                       @RequestParam(defaultValue = "desc") String dir,
+                       @RequestParam(defaultValue = "0") int page,
+                       @RequestParam(defaultValue = "10") int size,
+                       Model model) {
+
+        TodoSearchCond cond = new TodoSearchCond();
+        cond.setStatus(status);
+        cond.setKeyword(keyword);
+        cond.setDueFrom(dueFrom);
+        cond.setDueTo(dueTo);
+        cond.setSort(sort);
+        cond.setDir(dir);
+        cond.setPage(page);
+        cond.setSize(size);
+
+        PageResponse<TodoListSelectDto> pageRes = todoService.retrieveTodos(userId, cond);
+
+        model.addAttribute("page", pageRes);
+        model.addAttribute("cond", cond);
+        model.addAttribute("statuses", TodoStatus.values()); // 필터 드롭다운용
+        return "todos/list";
     }
 
 }
