@@ -19,11 +19,11 @@ public class TodoCreateRequestDto {
     @NotBlank(message = "타이틀은 필수입니다..")
     private String title;
     private String content;
-    @NotNull
+    @NotBlank
     private Priority priority;
-    @NotNull
+    @NotBlank
     private TodoStatus status;
-    @NotNull
+    @NotBlank
     private LocalDateTime dueAt;
 
 }

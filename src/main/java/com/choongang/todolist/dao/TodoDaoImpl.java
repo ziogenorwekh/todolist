@@ -57,7 +57,7 @@ public class TodoDaoImpl implements TodoDao {
      */
     @Override
     public Todo findTodoById(Long id) {
-        String sql = "select * from Todos where id = ?";
+        String sql = "select * from Todos where todoId = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Todo.class), id);
         } catch (EmptyResultDataAccessException e) {
@@ -68,7 +68,7 @@ public class TodoDaoImpl implements TodoDao {
     @Override
     public Todo updateTodo(Todo todo) {
         String sql = "UPDATE Todos SET userId = ?, title = ?, content = ?, priority = ?, " +
-                "status = ?, dueAt =?, updateAt = ?, completedAt =? WHERE id = ?";
+                "status = ?, dueAt =?, updateAt = ?, completedAt =? WHERE todoId = ?";
         jdbcTemplate.update(sql,
                 todo.getUserId(),
                 todo.getTitle(),

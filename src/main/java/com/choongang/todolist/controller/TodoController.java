@@ -1,5 +1,6 @@
 package com.choongang.todolist.controller;
 
+import com.choongang.todolist.dto.TodoUpdateRequestDto;
 import com.choongang.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,18 @@ public class TodoController {
     public String createTodo(Model model) {
         model.addAttribute("todoCreateRequestDto", new TodoCreateRequestDto());
         return "/todo/createTodo";
+    }
+
+    @PostMapping("/updateTodo")
+    public String updateTodo(@Valid @ModelAttribute TodoUpdateRequestDto todoUpdateRequestDto,Long todoId) {
+
+        return "";
+    }
+
+    @GetMapping("/updateTodo")
+    public String updateTodo(Model model) {
+        model.addAttribute("todoUpdateRequestDto", new TodoUpdateRequestDto());
+        return "/todo/updateTodo";
     }
 
 }
