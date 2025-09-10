@@ -1,5 +1,6 @@
 package com.choongang.todolist.controller;
 
+import com.choongang.todolist.dto.TodoUpdateRequestDto;
 import com.choongang.todolist.service.TodoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -56,6 +57,36 @@ public class TodoController {
     public String createTodo(Model model) {
         model.addAttribute("todoCreateRequestDto", new TodoCreateRequestDto());
         return "/todo/createTodo";
+    }
+
+    @PostMapping("/updateTodo")
+    public String updateTodo(@Valid @ModelAttribute TodoUpdateRequestDto todoUpdateRequestDto,
+                             Long todoId, HttpSession session, Model model, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("errors", bindingResult.getAllErrors());
+            return "redirect:/updateTodo";
+        }
+
+        Object user = session.getAttribute("user");
+        if (user == null) {
+            model.addAttribute("error", "로그인을 하고 이용하세요.");
+            return "redirect:/";
+        }
+
+        Long userId = null;
+        if (user instanceof User) {
+            userId = ((User) user).getUserId();
+        }
+
+        todoService.updateTodo(todoUpdateRequestDto, userId, todoId);
+
+        return "/todo/detail";
+    }
+
+    @GetMapping("/updateTodo")
+    public String updateTodo(Model model) {
+        model.addAttribute("todoUpdateRequestDto", new TodoUpdateRequestDto());
+        return "/todo/updateTodo";
     }
 
 }

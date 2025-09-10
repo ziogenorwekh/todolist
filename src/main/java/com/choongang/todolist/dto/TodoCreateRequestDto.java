@@ -1,10 +1,8 @@
 package com.choongang.todolist.dto;
 
 import com.choongang.todolist.domain.Priority;
-import com.choongang.todolist.domain.Todo;
 import com.choongang.todolist.domain.TodoStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,11 +17,11 @@ public class TodoCreateRequestDto {
     @NotBlank(message = "타이틀은 필수입니다..")
     private String title;
     private String content;
-    @NotNull
+    @NotBlank
     private Priority priority;
-    @NotNull
+    @NotBlank
     private TodoStatus status;
-    @NotNull
+    @NotBlank
     private LocalDateTime dueAt;
 
 }

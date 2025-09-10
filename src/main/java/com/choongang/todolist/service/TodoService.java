@@ -2,6 +2,7 @@ package com.choongang.todolist.service;
 
 import com.choongang.todolist.domain.Todo;
 import com.choongang.todolist.dto.TodoCreateRequestDto;
+import com.choongang.todolist.dto.TodoUpdateRequestDto;
 
 
 import java.util.List;
@@ -12,4 +13,7 @@ import java.util.List;
 public interface TodoService {
 
     Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId);
+
+    Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId, Long userId);
 }
+
