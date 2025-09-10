@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -62,7 +63,7 @@ public class TodoController {
         return "/todo/createTodo";
     }
     @GetMapping("/todo/detail/{id}")
-    public String detail(@RequestParam Long id, Model model,HttpSession session) {
+    public String detail(@PathVariable Long id, Model model,HttpSession session) {
     	Long todoUserid = todoService.findById(id).getUserId();
     	Object user = session.getAttribute("user");
         if (user == null) {
@@ -78,16 +79,29 @@ public class TodoController {
 		}
     	Todo todo = todoService.findById(id);
     	model.addAttribute("todo", todo);
-        return "detail";
+        return "/todo/detail";
     }
     @PostMapping("/todo/detail/{id}")
-    public String confirm(Long id) {
+    public String confirm(@PathVariable Long id, HttpSession session, Model model) {
+    	Long todoUserid = todoService.findById(id).getUserId();
+    	Object user = session.getAttribute("user");
+        if (user == null) {
+            model.addAttribute("error", "로그인을 하고 이용하세요.");
+            return "redirect:/";
+        }
+        Long userId = null;
+        if (user instanceof User) {
+            userId = ((User) user).getUserId();
+        }
+        if (!todoUserid.equals(userId)) {
+			return "404";
+		}
     	Todo todo = todoService.findById(id);
     	if (todo.getStatus().equals(TodoStatus.TODO)) {
 			todo.setUpdatedAt(LocalDateTime.now());
 		} else if (!todo.getStatus().equals(TodoStatus.DONE)) {
 			todo.setCompletedAt(LocalDateTime.now());
 		}
-    	return "detail";
+    	return "/todo/detail";
     }
 }

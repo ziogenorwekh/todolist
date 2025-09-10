@@ -38,9 +38,9 @@
                         제목 : <span th:text="${todo.title}">제목</span> 중요도 :<span th:text="${todo.priority}">중요도</span> <span th:if="${todo.status == TODO}">할 일</span> <span th:if="${todo.status == DOING}">하는 중</span><span th:if="${todo.status == DONE}">완료</span> 작성날짜 : <span th:text="${#dates.format(todo.createdAt, 'yy년 MM월 dd일')}" class="date">00년 00월 00일</span>
                     </h4>
                     <div class="modify">
-                        <a th:href="@{/todo/modify{todo.id}}" title="수정">✏️</a>
-                        <span th:if="${todo.status == TODO}"><a th:href="@{/todo/detail{todo.id}}" title="시작 게시">📋</a></span>
-                        <span th:if="${todo.status != DONE}"><a th:href="@{/todo/detail{todo.id}}" title="완료">✅</a></span>
+                        <a th:href="@{/modify/{id}(id=${todo.id})}" title="수정">✏️</a>
+                        <span th:if="${todo.status == TODO}"><a th:href="@{/detail/{id}(id=${todo.id})}" title="시작 게시">📋</a></span>
+                        <span th:if="${todo.status != DONE}"><a th:href="@{/detail/{id}(id=${todo.id})}" title="완료">✅</a></span>
                     </div>
                 </div>
                 <hr>
