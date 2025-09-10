@@ -14,6 +14,12 @@ public class TodoServiceImpl implements TodoService {
 
     private final TodoDao todoDao;
 
+
+    @Override
+    public Todo findById(Long id) {
+    	return todoDao.findTodoById(id);
+    }
+
     @Override
     public Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId) {
         Todo todo = Todo.createTodo(todoCreateRequestDto, userId);
