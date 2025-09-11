@@ -3,6 +3,7 @@ package com.choongang.todolist.domain;
 
 import com.choongang.todolist.dto.TodoCreateRequestDto;
 
+import com.choongang.todolist.dto.TodoUpdateRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -54,4 +55,5 @@ public class Todo {
         return todo;
 
     }
+
 }

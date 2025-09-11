@@ -38,7 +38,6 @@ public class LoginServiceImpl implements LoginService {
         if (user == null) {
             throw new UserLoginException(String.format("User not found for email: %s", email));
         }
-
         // 3. 비밀번호 일치하지 않으면 예외 발생 (논리 오류 수정)
         if (!user.getPassword().equals(password)) {
             throw new UserLoginException(String.format("Invalid password for email: %s", email));

@@ -1,5 +1,6 @@
 package com.choongang.todolist.service;
 
+import com.choongang.todolist.dao.UserDao;
 import com.choongang.todolist.domain.User;
 import com.choongang.todolist.dto.UserCreateRequestDto;
 

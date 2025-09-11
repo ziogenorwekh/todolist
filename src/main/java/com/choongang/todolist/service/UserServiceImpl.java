@@ -48,6 +48,10 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
+    // userDao를 사용해서 delete user를 실행했어요. 그 다음 행동을 무엇일까요?
+    // 개인적으로 성공적으로 처리되었는지 아닌지는 확인해주셔야 합니다.
+    // 일련의 에러로 인해 실제 반환값이 0이라면?(변환된 행의 개수가 0 <- 즉 수정(삭제)되지 않음)
+    // 사용자는 삭제되었다고 생각하지만, 실제로는 데이터베이스에 삭제되지 않았음을 알 수 있습니다.
     @Override
     public void deleteUser(Long userId, String password) {
         // 사용자 존재 확인

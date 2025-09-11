@@ -7,10 +7,16 @@ import com.choongang.todolist.exception.UserNotFoundException;
 import com.choongang.todolist.exception.DuplicateEmailException;
 import com.choongang.todolist.exception.InvalidPasswordException;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+
+
+import java.util.Optional;
+
 
 @Controller
 public class UserController {
@@ -30,32 +36,16 @@ public class UserController {
 
     // 회원가입을 처리
     @PostMapping("/register")
-    public String registerUser(@ModelAttribute UserCreateRequestDto userCreateRequestDto, Model model) {
+    public String registerUser(@ModelAttribute @Valid UserCreateRequestDto userCreateRequestDto,
+                               BindingResult bindingResult, Model model) {
+
+        // 자동 유효성 검증 처리
+        if (bindingResult.hasErrors()) {
+            return "auth/register";
+        }
+
         try {
-            // 유효성 검증
-            if (userCreateRequestDto.getEmail() == null || userCreateRequestDto.getEmail().trim().isEmpty()) {
-                model.addAttribute("error", "이메일을 입력해주세요");
-                return "auth/register";
-            }
-
-            if (userCreateRequestDto.getPassword() == null || userCreateRequestDto.getPassword().trim().isEmpty()) {
-                model.addAttribute("error", "비밀번호를 입력해주세요");
-                return "auth/register";
-            }
-
-            if (userCreateRequestDto.getName() == null || userCreateRequestDto.getName().trim().isEmpty()) {
-                model.addAttribute("error", "이름을 입력해주세요");
-                return "auth/register";
-            }
-
-            if (!userCreateRequestDto.getPassword().equals(userCreateRequestDto.getConfirmPassword())) {
-                model.addAttribute("error", "비밀번호가 일치하지 않습니다");
-                return "auth/register";
-            }
-
-            // 회원가입 처리
             userService.createUser(userCreateRequestDto);
-
             return "redirect:/login?success=registered";
 
         } catch (DuplicateEmailException e) {
@@ -74,7 +64,7 @@ public class UserController {
         if (user == null) {
             return "redirect:/login";
         }
-        return "auth/delete-account";
+        return "user/delete-account";
     }
 
     // 회원 탈퇴 처리
