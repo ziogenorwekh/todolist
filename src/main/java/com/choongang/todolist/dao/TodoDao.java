@@ -1,6 +1,9 @@
 package com.choongang.todolist.dao;
 
+import java.util.List;
+
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.dto.TodoSearchCond;
 
 
 /***
@@ -10,7 +13,9 @@ import com.choongang.todolist.domain.Todo;
 public interface TodoDao {
 
     Todo saveTodo (Todo todo);
-    Todo findTodoById(Long id);
+    Todo findTodoById(Long id); 
+    List<Todo> selectTodosByUser(Long userId, TodoSearchCond cond);  // 로그인 사용자(userId) 소유의 Todo 목록 조회 JHE
+    long countTodosByUser(Long userId, TodoSearchCond cond);   // 사용자(userId) 소유의 조회 결과의 전체 개수
     Todo updateTodo (Todo todo);
 }
 
