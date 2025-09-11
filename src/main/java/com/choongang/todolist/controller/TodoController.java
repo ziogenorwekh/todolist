@@ -74,11 +74,29 @@ public class TodoController {
         model.addAttribute("todoCreateRequestDto", new TodoCreateRequestDto());
         return "/todo/createTodo";
     }
-    
-    /** 로그인 사용자 To-do 리스트 조회 */
+
+    /**
+     * 로그인 사용자 To-do 리스트 조회
+     */
+    // RequestParam으로 받는 방법도 좋습니다.
+    // 코드가 길어져서 피곤할 수도 있습니다.
+    // RequsetParam으로 받는 파라미터를 DTO화 할 수있어요.
+    // HE님이 작성하신 코드는 모두 DTO를 리턴하고 있습니다. 마찬가지로 입력받은 값을 DTO로 받을 수 있습니다.
+    // public class TodoSearchRequest {
+    //    private TodoStatus status;
+    //    private String keyword;
+    //    private LocalDate dueFrom;
+    //    private LocalDate dueTo;
+    //    private String sort = "createdAt";
+    //    private String dir = "desc";
+    //    private int page = 0;
+    //    private int size = 10;
+    //} 이와같은 객체를 받고,
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/todos")
     public String list(@AuthenticationPrincipal(expression = "username") Long userId,
+                       /* @ModelAttribute @Valid TodoSearchRequest todoSearchRequest */
+                       /* BindingResult bindingResult 까지 합친다면, */
                        @RequestParam(required = false) TodoStatus status,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueFrom,
@@ -88,7 +106,9 @@ public class TodoController {
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "10") int size,
                        Model model) {
-
+//        if (bindingResult.hasErrors()) {
+//            return "/todo/todos/list";
+//        } 뭐 이런식으로, 입력값을 간단하게 처리할 수 있습니다.
         TodoSearchCond cond = new TodoSearchCond();
         cond.setStatus(status);
         cond.setKeyword(keyword);

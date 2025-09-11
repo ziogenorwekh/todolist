@@ -1,6 +1,7 @@
 package com.choongang.todolist.dao;
 
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.dto.TodoSearchCond;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -13,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @RequiredArgsConstructor
@@ -63,6 +65,16 @@ public class TodoDaoImpl implements TodoDao {
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public List<Todo> selectTodosByUser(Long userId, TodoSearchCond cond) {
+        return List.of();
+    }
+
+    @Override
+    public long countTodosByUser(Long userId, TodoSearchCond cond) {
+        return 0;
     }
 
     @Override
