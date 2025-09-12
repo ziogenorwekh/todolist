@@ -26,31 +26,25 @@ public class UserDaoImpl implements UserDao {
     public int insertUser(User user) {
         String sql = "INSERT INTO users (email, password, name, created_at) VALUES (?, ?, ?, ?)";
 
-        //        아래의 주석을 보고 참고하세요.
-//        키 홀더는 database에서 auto_increment에서 자동으로 생성한 인덱스 값을 가져다주는 전달자 역할을 해요.
-//        PreparedStatement는 전통적으로 SQL 인젝션에 대해 방어하는 코드로 사용하곤 했습니다.
-//        입력 파라미터에 SQL 쿼리를 쿼리로 처리하지 않고 문자로 처리합니다.
-//        KeyHolder keyHolder = new GeneratedKeyHolder();
-//        jdbcTemplate.update(con -> {
-//            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-//            ps.setString(1, user.getEmail());
-//            ps.setString(2, user.getPassword());
-//            ps.setString(3, user.getUsername());
-//            ps.setTimestamp(4, Timestamp.valueOf(user.getCreateAt()));
-//            return ps;
-//        }, keyHolder);
-//        user.setUserId(keyHolder.getKey().longValue());
-        // 데이터베이스에서 id 값을 자동 생성해주니, 해당 쿼리를 수행 후, 키 홀더에서 생성된 키값을 세팅하고 유저를
-//        리턴하면 좋을 수 있습니다.
-        // return user;
-        return jdbcTemplate.update(
-                sql,
-                user.getEmail(),
-                user.getPassword(),
-                user.getUsername(),
-                user.getCreateAt()
-        );
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        int rows = jdbcTemplate.update(con -> {
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setString(1, user.getEmail());
+            ps.setString(2, user.getPassword());
+            ps.setString(3, user.getUsername());
+            ps.setTimestamp(4, Timestamp.valueOf(user.getCreateAt()));
+            return ps;
+        }, keyHolder);
+
+        Number key = keyHolder.getKey();
+        if (key != null) {
+            user.setUserId(key.longValue());
+        }
+
+        return rows;
     }
+
 
     @Override
     public User findByEmail(String email) {

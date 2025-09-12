@@ -3,60 +3,137 @@ package com.choongang.todolist.user;
 import com.choongang.todolist.dao.UserDao;
 import com.choongang.todolist.domain.User;
 import com.choongang.todolist.dto.UserCreateRequestDto;
-import com.choongang.todolist.service.UserService;
+import com.choongang.todolist.exception.DuplicateEmailException;
+import com.choongang.todolist.exception.InvalidPasswordException;
+import com.choongang.todolist.exception.UserNotFoundException;
+
 import com.choongang.todolist.service.UserServiceImpl;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-/**
- * 테스트는 어떻게 할까?에 대한 예시
- */
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
-@ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
-    
-    
-    private UserService userService;
+import org.mockito.*;
 
-    // 인터페이스 구현체를 임의적으로 존재한다고 가정했어요
+import java.time.LocalDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+
+class UserServiceImplTest {
+
     @Mock
     private UserDao userDao;
-    
-    // 각 테스트가 시작하기 전에 무슨 작업을 실행할지 정하는 메서드에요.
-    // 이와 반대로 @BeforeAll은 모든 테스트가 시작하기 전에 딱 한 번만 실행돼요.
+
+    @InjectMocks
+    private UserServiceImpl userService;
+
     @BeforeEach
-    public void setup() {
-        userService = new UserServiceImpl(userDao);
+    void setup() {
+        MockitoAnnotations.openMocks(this);
     }
-    
+
     @Test
-    @DisplayName("유저를 생성하는 테스트")
-    public void createUserTest() {
-        // given (무언가 주어진다면?)
-        UserCreateRequestDto createRequestDto = new UserCreateRequestDto();
-        createRequestDto.setEmail("test@example.com");
-        createRequestDto.setName("tester");
-        createRequestDto.setPassword("testpwd");
-        createRequestDto.setConfirmPassword("testpwd");
-        // Mockito 클래스에서 언제? userDao 클래스의 findByEmail에서 실제 이메일 값을 넣으면! -> 실제로는 null 값이 나온다고
-        // "가정"할게요. '실제 환경에서 중복된 이메일이 존재하지 않는다고 가정할게요.'
-        Mockito.when(userDao.findByEmail(createRequestDto.getEmail())).thenReturn(null);
-        // userDao에서 유저를 저장한다면 리턴 값은 1이라고 나온다고 가정할게요.
-//        Mockito.when(userDao.saveUser(Mockito.any())).thenReturn(1);
-        // when (어떤 동작을 테스트 할건지?)
-        // 유저를 생성해서 리턴되는 유저의 값은 무엇일까요?
-        User user = userService.createUser(createRequestDto);
-        // then (어떤 결과가 나올지?)
-        // Mockito로 확인할게요. userDao를, 1번 발생했다고, 무엇이? saveUser() 메서드가, 지금은 아무값이 들어간다고 가정할게요.
-        // 왜 아무값이 들어간다고 가정했을까요? 실제 우리는 유저서비스 내부의 생성된 유저 객체에 접근이 불가능 하기 때문이에요.
-        Mockito.verify(userDao, Mockito.times(1)).insertUser(Mockito.any());
-        // 생성된 유저 객체의 값이 내가 선언한 값과 같나요 ?
-        Assertions.assertEquals(user.getUsername(), createRequestDto.getName());
-        Assertions.assertEquals(user.getEmail(), createRequestDto.getEmail());
-        Assertions.assertEquals(user.getPassword(), createRequestDto.getPassword());
+    void createUser_Success() {
+        // Given: 신규 사용자 DTO
+        UserCreateRequestDto dto = new UserCreateRequestDto();
+        dto.setEmail("test@example.com");
+        dto.setPassword("password");
+        dto.setConfirmPassword("password");
+        dto.setName("Tester");
+
+        // 중복 이메일 존재 안함
+        when(userDao.findByEmail(dto.getEmail())).thenReturn(null);
+        // insertUser 성공(1건 입력)
+        when(userDao.insertUser(any(User.class))).thenReturn(1);
+
+        // When
+        User createdUser = userService.createUser(dto);
+
+        // Then
+        assertNotNull(createdUser);
+        assertEquals(dto.getEmail(), createdUser.getEmail());
+        assertEquals(dto.getName(), createdUser.getUsername());
+        verify(userDao).findByEmail(dto.getEmail());
+        verify(userDao).insertUser(any(User.class));
     }
-    
+
+    @Test
+    void createUser_DuplicateEmail_ThrowsException() {
+        UserCreateRequestDto dto = new UserCreateRequestDto();
+        dto.setEmail("dup@example.com");
+        dto.setPassword("pass");
+        dto.setConfirmPassword("pass");
+        dto.setName("DupUser");
+
+        // 중복 이메일 존재
+        when(userDao.findByEmail(dto.getEmail())).thenReturn(new User());
+
+        // 예외 발생 확인
+        assertThrows(DuplicateEmailException.class, () -> userService.createUser(dto));
+
+        verify(userDao).findByEmail(dto.getEmail());
+        verify(userDao, never()).insertUser(any());
+    }
+
+    @Test
+    void deleteUser_Success() {
+        Long userId = 1L;
+        String password = "pass123";
+        User user = new User();
+        user.setUserId(userId);
+        user.setPassword(password);
+
+        when(userDao.findById(userId)).thenReturn(user);
+        when(userDao.deleteUser(userId)).thenReturn(1);
+
+        assertDoesNotThrow(() -> userService.deleteUser(userId, password));
+
+        verify(userDao).findById(userId);
+        verify(userDao).deleteUser(userId);
+    }
+
+    @Test
+    void deleteUser_UserNotFound_ThrowsException() {
+        Long userId = 99L;
+        when(userDao.findById(userId)).thenReturn(null);
+
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUser(userId, "any"));
+
+        verify(userDao).findById(userId);
+        verify(userDao, never()).deleteUser(anyLong());
+    }
+
+    @Test
+    void deleteUser_InvalidPassword_ThrowsException() {
+        Long userId = 1L;
+        User user = new User();
+        user.setUserId(userId);
+        user.setPassword("correctPass");
+
+        when(userDao.findById(userId)).thenReturn(user);
+
+        assertThrows(InvalidPasswordException.class, () -> userService.deleteUser(userId, "wrongPass"));
+
+        verify(userDao).findById(userId);
+        verify(userDao, never()).deleteUser(anyLong());
+    }
+
+    @Test
+    void deleteUser_DeleteFails_ThrowsException() {
+        Long userId = 1L;
+        String password = "pass";
+        User user = new User();
+        user.setUserId(userId);
+        user.setPassword(password);
+
+        when(userDao.findById(userId)).thenReturn(user);
+        when(userDao.deleteUser(userId)).thenReturn(0);  // 실패
+
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> userService.deleteUser(userId, password));
+        assertTrue(exception.getMessage().contains("삭제에 실패"));
+
+        verify(userDao).findById(userId);
+        verify(userDao).deleteUser(userId);
+    }
 }

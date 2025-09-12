@@ -29,6 +29,10 @@ public class User {
                 LocalDateTime createAt, LocalDateTime updateAt) {
         this.userId = userId;
         this.username = username;
+        this.password = password;
+        this.email = email;
+        this.createAt = createAt;
+        this.updateAt = updateAt;
     }
     /**
      * @param password 변경할 비밀번호
