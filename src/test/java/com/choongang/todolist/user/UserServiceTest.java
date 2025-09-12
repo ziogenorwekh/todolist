@@ -34,6 +34,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("맞는 User의 정보로 사용자를 생성하면 User 생성 성공")
     void createUser_Success() {
         // Given: 신규 사용자 DTO
         UserCreateRequestDto dto = new UserCreateRequestDto();
@@ -59,6 +60,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("중복된 이메일로 User를 생성하면 에러(DuplicateEmailException) 발생")
     void createUser_DuplicateEmail_ThrowsException() {
         UserCreateRequestDto dto = new UserCreateRequestDto();
         dto.setEmail("dup@example.com");
@@ -77,6 +79,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("맞는 비밀번호로 사용자를 삭제하면 삭제 성공")
     void deleteUser_Success() {
         Long userId = 1L;
         String password = "pass123";
@@ -93,7 +96,8 @@ class UserServiceImplTest {
         verify(userDao).deleteUser(userId);
     }
 
-    @Test
+    @Test 
+    @DisplayName("존재하지 않는 User 삭제 시 에러(UserNotFoundException) 발생")
     void deleteUser_UserNotFound_ThrowsException() {
         Long userId = 99L;
         when(userDao.findById(userId)).thenReturn(null);
@@ -105,6 +109,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("틀린 비밀번호로 User 삭제 시 에러(InvalidPasswordException) 발생")
     void deleteUser_InvalidPassword_ThrowsException() {
         Long userId = 1L;
         User user = new User();
@@ -120,6 +125,7 @@ class UserServiceImplTest {
     }
 
     @Test
+    @DisplayName("User 정보가 담긴 데이터베이스 삭제 실패 시 에러(RuntimeException) 발생")
     void deleteUser_DeleteFails_ThrowsException() {
         Long userId = 1L;
         String password = "pass";
