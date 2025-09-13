@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * 테스트는 어떻게 할까?에 대한 예시
@@ -19,17 +20,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 public class UserServiceTest {
     
     
-    private UserService userService;
+    
+
+	private UserService userService;
 
     // 인터페이스 구현체를 임의적으로 존재한다고 가정했어요
     @Mock
     private UserDao userDao;
+    private static final PasswordEncoder PasswordEncoder = null;    // UserService에서 매게변수 추가로 인한 수정 JHE
     
     // 각 테스트가 시작하기 전에 무슨 작업을 실행할지 정하는 메서드에요.
     // 이와 반대로 @BeforeAll은 모든 테스트가 시작하기 전에 딱 한 번만 실행돼요.
     @BeforeEach
     public void setup() {
-        userService = new UserServiceImpl(userDao);
+        userService = new UserServiceImpl(userDao, PasswordEncoder); // UserService에서 매게변수 추가로 인한 수정 JHE
     }
     
     @Test
