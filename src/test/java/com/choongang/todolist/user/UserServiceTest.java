@@ -2,6 +2,7 @@ package com.choongang.todolist.user;
 
 import com.choongang.todolist.dao.UserDaoImpl;
 import com.choongang.todolist.domain.User;
+import com.choongang.todolist.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
-
+import org.springframework.security.crypto.password.PasswordEncoder;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+
+
+
+    private static final PasswordEncoder PasswordEncoder = null;    // UserService에서 매게변수 추가로 인한 수정 JHE
+
+    private UserService userService;
 
     @InjectMocks
     private UserDaoImpl userDao;
@@ -44,11 +51,13 @@ public class UserServiceTest {
         testUser.setEmail("test@example.com");
         testUser.setCreateAt(LocalDateTime.now());
         testUser.setUpdateAt(LocalDateTime.now());
-    }
 
+        // 각 테스트가 시작하기 전에 무슨 작업을 실행할지 정하는 메서드에요.
+        // 이와 반대로 @BeforeAll은 모든 테스트가 시작하기 전에 딱 한 번만 실행돼요.
+    }
     //---------------------------------------------------------
 
-    @Test
+        @Test
     @DisplayName("사용자 이름으로 사용자를 성공적으로 찾아야 한다")
     public void testFindByUsernameSuccess() {
         // Mocking: jdbcTemplate이 queryForObject 호출 시 testUser 객체를 반환하도록 설정
