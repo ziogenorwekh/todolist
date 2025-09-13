@@ -1,9 +1,15 @@
 package com.choongang.todolist.dao;
 
+import com.choongang.todolist.domain.Priority;
 import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.domain.TodoStatus;
+import com.choongang.todolist.dto.TodoSearchCond;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -11,6 +17,8 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class TodoDaoImpl implements TodoDao {
@@ -20,7 +28,28 @@ public class TodoDaoImpl implements TodoDao {
     public TodoDaoImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
-
+    
+    /** 공용 매퍼 : 스프링 JDBC(JdbcTemplate)에서 SQL 실행 결과(ResultSet)을 → 자바 객체로 변환해주는 역할을 하는 게 RowMapper JHE */
+    private static final RowMapper<Todo> TODO_MAPPER = (rs, rn) -> {
+        Todo t = new Todo();
+        t.setTodoId(rs.getLong("todo_id"));
+        t.setUserId(rs.getLong("user_id"));
+        t.setTitle(rs.getString("title"));
+        t.setContent(rs.getString("content"));
+        t.setPriority(Priority.valueOf(rs.getString("priority")));
+        t.setStatus(TodoStatus.valueOf(rs.getString("status")));
+        Timestamp dueAt = rs.getTimestamp("due_at");
+        Timestamp createAt = rs.getTimestamp("create_at");
+        Timestamp updateAt = rs.getTimestamp("update_at");
+        Timestamp completedAt = rs.getTimestamp("completed_at");
+        t.setDueAt(dueAt == null ? null : dueAt.toLocalDateTime());
+        t.setCreatedAt(createAt == null ? null : createAt.toLocalDateTime());
+        t.setUpdatedAt(updateAt == null ? null : updateAt.toLocalDateTime());
+        t.setCompletedAt(completedAt == null ? null : completedAt.toLocalDateTime());
+        return t;
+    };
+    
+    
     @Override
     public Todo saveTodo(Todo todo) {
         String sql = "insert into Todos (userId, title, content, priority, " +
@@ -85,5 +114,110 @@ public class TodoDaoImpl implements TodoDao {
     public Todo updateTodo(Todo todo) {
         String sql = "update todos";
         return null;
+    }
+    
+    
+    /** 로그인 사용자(userId) 소유의 Todo 목록 조회 JHE */
+    @Override
+    public List<Todo> selectTodosByUser(Long userId, TodoSearchCond cond) {
+        // 정렬 화이트리스트
+        String sort = (cond != null && cond.getSort() != null) ? cond.getSort() : "created_at";
+        switch (sort) {
+            case "title": 
+            case "due_at": 
+            case "priority": 
+            case "status": 
+            case "created_at": 
+            	break;
+            default: sort = "created_at";
+        }
+        String dir = (cond != null && "ASC".equalsIgnoreCase(cond.getDir())) ? "ASC" : "DESC";
+
+        StringBuilder sql = new StringBuilder(
+            "SELECT id, user_id, title, content, priority, status, " +
+            "       due_at, created_at, updated_at, completed_at " +
+            "  FROM todos " +
+            " WHERE user_id = ?"
+        );
+        List<Object> args = new ArrayList<>();
+        args.add(userId);
+
+        if (cond != null) {
+            if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
+                sql.append(" AND (title LIKE ? OR content LIKE ?)");
+                String kw = "%" + cond.getKeyword().trim() + "%";
+                args.add(kw);
+                args.add(kw);
+            }
+            if (cond.getStatus() != null) {
+                sql.append(" AND status = ?");
+                args.add(cond.getStatus().name());
+            }
+            if (cond.getPriority() != null) {
+                sql.append(" AND priority = ?");
+                args.add(cond.getPriority().name());
+            }
+            if (cond.getDueFrom() != null) {
+                sql.append(" AND due_at >= ?");
+                args.add(Timestamp.valueOf(cond.getDueFrom().atStartOfDay()));
+            }
+            if (cond.getDueTo() != null) {
+                sql.append(" AND due_at < ?");
+                args.add(Timestamp.valueOf(cond.getDueTo().atTime(23, 59, 59)));
+            }
+        }
+
+        sql.append(" ORDER BY ").append(sort).append(' ').append(dir);
+        
+        // 페이징
+        int size = (cond != null && cond.getSize() > 0) ? cond.getSize() : 10;
+        int page = (cond != null && cond.getPage() >= 0) ? cond.getPage() : 0;
+        sql.append(" LIMIT ? OFFSET ?");
+        args.add(size);
+        args.add(page * size);
+
+        return jdbcTemplate.query(sql.toString(), 
+        						  TODO_MAPPER,    // new BeanPropertyRowMapper<>(Todo.class) 사용시, enum 같은 타입도 제대로 받아오는지?
+        						  args.toArray());
+    }
+
+        
+        
+        /** 사용자(userId) 소유의 조회 결과의 전체 개수 JHE */
+    @Override
+    public long countTodosByUser(Long userId, TodoSearchCond cond) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT COUNT(*) FROM todos WHERE user_id = ?"
+        );
+        List<Object> args = new ArrayList<>();
+        args.add(userId);
+
+        if (cond != null) {
+            if (cond.getKeyword() != null && !cond.getKeyword().isBlank()) {
+                sql.append(" AND (title LIKE ? OR content LIKE ?)");
+                String kw = "%" + cond.getKeyword().trim() + "%";
+                args.add(kw);
+                args.add(kw);
+            }
+            if (cond.getStatus() != null) {
+                sql.append(" AND status = ?");
+                args.add(cond.getStatus().name());
+            }
+            if (cond.getPriority() != null) {
+                sql.append(" AND priority = ?");
+                args.add(cond.getPriority().name());
+            }
+            if (cond.getDueFrom() != null) {
+                sql.append(" AND due_at >= ?");
+                args.add(Timestamp.valueOf(cond.getDueFrom().atStartOfDay()));
+            }
+            if (cond.getDueTo() != null) {
+                sql.append(" AND due_at < ?");
+                args.add(Timestamp.valueOf(cond.getDueTo().atTime(23, 59, 59)));
+            }
+        }
+
+        Number n = jdbcTemplate.queryForObject(sql.toString(), Number.class, args.toArray());
+        return n == null ? 0L : n.longValue();
     }
 }

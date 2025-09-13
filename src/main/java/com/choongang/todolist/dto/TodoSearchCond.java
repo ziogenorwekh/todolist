@@ -1,5 +1,6 @@
 package com.choongang.todolist.dto;
 
+import com.choongang.todolist.domain.Priority;
 import com.choongang.todolist.domain.TodoStatus;
 
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import java.time.LocalDate;
 @AllArgsConstructor // 모든 필드 받는 생성자
 public class TodoSearchCond {
     private TodoStatus status;       // 상태 필터 
+    private Priority priority;       // 우선순위
     private String keyword;          // 제목 키워드 
     private LocalDate dueFrom;       // 마감 시작일 
     private LocalDate dueTo;         // 마감 종료일 

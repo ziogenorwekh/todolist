@@ -1,10 +1,14 @@
 package com.choongang.todolist.dao;
 
 import com.choongang.todolist.domain.User;
+
+import lombok.RequiredArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -13,6 +17,7 @@ import java.sql.*;
 import java.util.Optional;
 
 @Repository
+//@RequiredArgsConstructor  //final 필드나 @NonNull 필드를 대상으로 생성자를 자동 생성해줌
 public class UserDaoImpl implements UserDao {
 
     private final JdbcTemplate jdbcTemplate;
@@ -94,6 +99,37 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
+    /** 프로필(표시명/이메일/프로필이미지)만 수정 JHE */
+    public int updateProfile(Long userId, String displayName, String email, String profileImageUrl) {
+        String sql = """
+            UPDATE users
+               SET display_name = :displayName,
+                   email = :email,
+                   profile_image_url = :profileImageUrl,
+                   updated_at = NOW()
+             WHERE id = :id
+        """;
+        var params = new MapSqlParameterSource()
+                .addValue("displayName", displayName)
+                .addValue("email", email)
+                .addValue("profileImageUrl", profileImageUrl)
+                .addValue("id", userId);
+        return jdbcTemplate.update(sql, params);
+    }
+
+    /** 비밀번호만 수정(해시 저장) JHE*/
+    public int updatePassword(Long userId, String passwordHash) {
+        String sql = """
+            UPDATE users
+               SET password_hash = :pwd,
+                   updated_at = NOW()
+             WHERE id = :id
+        """;
+        var params = new MapSqlParameterSource()
+                .addValue("pwd", passwordHash)
+                .addValue("id", userId);
+        return jdbcTemplate.update(sql, params);
+    }
 
     @Override
     public int deleteUser(Long userId) {
