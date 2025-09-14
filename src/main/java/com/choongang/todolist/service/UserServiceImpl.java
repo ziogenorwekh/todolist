@@ -33,6 +33,7 @@ public class UserServiceImpl implements UserService {
     
  
     @Override
+    @Transactional
     public User createUser(UserCreateRequestDto userCreateRequestDto) {
         // 이메일 중복 검사
         if (userDao.findByEmail(userCreateRequestDto.getEmail()) != null) {
@@ -56,13 +57,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId, String password) {
         User user = userDao.findById(userId);
         if (user == null) {
             throw new UserNotFoundException("사용자를 찾을 수 없습니다: " + userId);
         }
+        String encoded = passwordEncoder.encode(password);
 
-        if (!user.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, encoded)) {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다");
         }
 

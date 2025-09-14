@@ -1,6 +1,8 @@
 package com.choongang.todolist.exception;
 
-public class DuplicateEmailException extends RuntimeException {
+import com.choongang.todolist.domain.Todo;
+
+public class DuplicateEmailException extends TodoException {
     public DuplicateEmailException(String message) {
         super(message);
     }

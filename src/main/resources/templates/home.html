@@ -15,7 +15,7 @@
         <div class="d-flex align-items-center">
             <!-- 로그인 상태 -->
             <span sec:authorize="isAuthenticated()" class="text-white me-3">
-                환영합니다, <b sec:authentication="principal.nickname">User</b>님
+                환영합니다, <b sec:authentication="principal.nickname">User</b></span>
             </span>
             <!-- 비로그인 상태 -->
             <a sec:authorize="isAnonymous()" class="btn btn-outline-light me-2" href="/login">로그인</a>
@@ -44,7 +44,7 @@
     </div>
 </div>
 
-<footer class="text-center mt-5 mb-3 text-muted">
+<footer class="text-center mt-5 mb-3 text-muted" th:fragment="footer">
     &copy; 2025 ToDo App
 </footer>
 

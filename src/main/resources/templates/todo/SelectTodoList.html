@@ -2,162 +2,245 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>나의 To-do</title>
-  <style>
-    body { font-family: system-ui, sans-serif; }
-    table { border-collapse: collapse; width: 100%; margin-top: 12px; }
-    th, td { border: 1px solid #ddd; padding: 8px; }
-    th a { text-decoration: none; color: inherit; }
-    th { background: #f6f7f9; }
-    .toolbar { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .pager { margin-top: 12px; display: flex; gap: 8px; align-items: center; }
-    .count { margin-top: 8px; color: #666; font-size: 14px; }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Todo List</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
+
 <body>
-<h1>나의 To-do</h1>
+<!-- 헤더 -->
+<div th:replace="fragments/header :: header"></div>
 
-<!-- 1) 검색 폼: 드롭다운으로 4가지 정렬 + 방향 선택 -->
-<form class="toolbar" method="get" th:action="@{/todos}">
-  상태:
-  <select name="status">
-    <option value="" th:selected="${cond.status == null}">전체</option>
-    <option th:each="s : ${statuses}"
-            th:value="${s}"
-            th:text="${s}"
-            th:selected="${cond.status == s}">TODO</option>
-  </select>
+<div class="container py-4">
 
-  키워드:
-  <input type="text" name="keyword" th:value="${cond.keyword}" placeholder="제목 포함 검색">
+  <!-- 검색/필터 카드 -->
+  <div class="card shadow-sm mb-3">
+    <div class="card-body">
+      <form class="row g-3 align-items-end" method="get" th:action="@{/todos}">
+        <!-- 상태 -->
+        <div class="col-12 col-md-2">
+          <label class="form-label fw-semibold">상태</label>
+          <select class="form-select" name="status">
+            <option value="" th:selected="${cond.status == null}">전체</option>
+            <option th:each="s : ${statuses}"
+                    th:value="${s}"
+                    th:text="${s}"
+                    th:selected="${cond.status == s}">TODO</option>
+          </select>
+        </div>
 
-  마감:
-  <input type="date" name="dueFrom" th:value="${cond.dueFrom}">
-  ~
-  <input type="date" name="dueTo" th:value="${cond.dueTo}">
+        <!-- 키워드 -->
+        <div class="col-12 col-md-3">
+          <label class="form-label fw-semibold">키워드</label>
+          <input class="form-control" type="text" name="keyword"
+                 th:value="${cond.keyword}" placeholder="제목 포함 검색">
+        </div>
 
-  정렬:
-  <select name="sort">
-    <option value="createdAt" th:selected="${cond.sort=='createdAt'}">생성일</option>
-    <option value="dueAt"     th:selected="${cond.sort=='dueAt'}">마감일</option>
-    <option value="title"     th:selected="${cond.sort=='title'}">제목</option>
-    <option value="status"    th:selected="${cond.sort=='status'}">상태</option>
-  </select>
+        <!-- 마감일 from -->
+        <div class="col-6 col-md-2">
+          <label class="form-label fw-semibold">마감(시작)</label>
+          <input class="form-control" type="date" name="dueFrom" th:value="${cond.dueFrom}">
+        </div>
 
-  방향:
-  <select name="dir">
-    <option value="asc"  th:selected="${cond.dir=='asc'}">오름차</option>
-    <option value="desc" th:selected="${cond.dir=='desc'}">내림차</option>
-  </select>
+        <!-- 마감일 to -->
+        <div class="col-6 col-md-2">
+          <label class="form-label fw-semibold">마감(종료)</label>
+          <input class="form-control" type="date" name="dueTo" th:value="${cond.dueTo}">
+        </div>
 
-  <!-- 조건 변경 시 1페이지부터 -->
-  <input type="hidden" name="page" value="1">
-  <input type="hidden" name="size" th:value="${cond.size}">
-  <button type="submit">검색</button>
-</form>
+        <!-- 정렬 -->
+        <div class="col-6 col-md-1">
+          <label class="form-label fw-semibold">정렬</label>
+          <select class="form-select" name="sort">
+            <option value="createdAt" th:selected="${cond.sort=='createdAt'}">생성일</option>
+            <option value="dueAt"     th:selected="${cond.sort=='dueAt'}">마감일</option>
+            <option value="title"     th:selected="${cond.sort=='title'}">제목</option>
+            <option value="status"    th:selected="${cond.sort=='status'}">상태</option>
+          </select>
+        </div>
 
-<div class="count">
-  <span th:text="'총 ' + ${page.totalElements} + '건 · ' + (${page.page}+1) + '/' + ${page.totalPages} + ' 페이지'">총 0건</span>
+        <!-- 방향 -->
+        <div class="col-6 col-md-1">
+          <label class="form-label fw-semibold">방향</label>
+          <select class="form-select" name="dir">
+            <option value="asc"  th:selected="${cond.dir=='asc'}">오름</option>
+            <option value="desc" th:selected="${cond.dir=='desc'}">내림</option>
+          </select>
+        </div>
+
+        <!-- 검색 버튼 -->
+        <div class="col-12 col-md-1 d-grid">
+          <!-- 조건 변경 시 1페이지부터 -->
+          <input type="hidden" name="page" value="0">
+          <input type="hidden" name="size" th:value="${cond.size}">
+          <button type="submit" class="btn btn-primary">검색</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 카운트 -->
+  <div class="d-flex justify-content-between align-items-center mb-2">
+    <h5 class="mb-0 fw-semibold">📋 Todo 목록</h5>
+    <small class="text-muted"
+           th:text="'총 ' + ${page.totalElements} + '건 · ' + (${page.page}+1) + '/' + ${page.totalPages} + ' 페이지'">
+      총 0건
+    </small>
+  </div>
+
+  <!-- 목록 테이블 -->
+  <div class="table-responsive shadow-sm rounded">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-dark">
+      <tr>
+        <!-- 제목 -->
+        <th scope="col">
+          <a class="link-light text-decoration-none" th:href="@{/todos(
+                status=${cond.status}, keyword=${cond.keyword},
+                dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+                size=${cond.size}, page=0,
+                sort='title',
+                dir=${cond.sort=='title' and cond.dir=='asc' ? 'desc' : 'asc'}
+            )}">
+            제목
+            <span class="ms-1" th:if="${cond.sort=='title'}"
+                  th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
+          </a>
+        </th>
+
+        <!-- 상태 -->
+        <th scope="col" style="width:110px;">
+          <a class="link-light text-decoration-none" th:href="@{/todos(
+                status=${cond.status}, keyword=${cond.keyword},
+                dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+                size=${cond.size}, page=0,
+                sort='status',
+                dir=${cond.sort=='status' and cond.dir=='asc' ? 'desc' : 'asc'}
+            )}">
+            상태
+            <span class="ms-1" th:if="${cond.sort=='status'}"
+                  th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
+          </a>
+        </th>
+
+        <!-- 마감일 -->
+        <th scope="col" style="width:180px;">
+          <a class="link-light text-decoration-none" th:href="@{/todos(
+                status=${cond.status}, keyword=${cond.keyword},
+                dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+                size=${cond.size}, page=0,
+                sort='dueAt',
+                dir=${cond.sort=='dueAt' and cond.dir=='asc' ? 'desc' : 'asc'}
+            )}">
+            마감일
+            <span class="ms-1" th:if="${cond.sort=='dueAt'}"
+                  th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
+          </a>
+        </th>
+
+        <!-- 생성일 -->
+        <th scope="col" style="width:180px;">
+          <a class="link-light text-decoration-none" th:href="@{/todos(
+                status=${cond.status}, keyword=${cond.keyword},
+                dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+                size=${cond.size}, page=0,
+                sort='createdAt',
+                dir=${cond.sort=='createdAt' and cond.dir=='asc' ? 'desc' : 'asc'}
+            )}">
+            생성일
+            <span class="ms-1" th:if="${cond.sort=='createdAt'}"
+                  th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
+          </a>
+        </th>
+
+        <th scope="col" style="width:90px;">D-day</th>
+      </tr>
+      </thead>
+
+      <tbody>
+      <tr th:each="t : ${page.content}">
+        <td class="text-break">
+          <a class="text-decoration-none fw-semibold"
+             th:href="@{/todo/detail/{id}(id=${t.id})}"
+             th:text="${t.title}">제목</a>
+        </td>
+
+        <!-- 상태 배지 -->
+        <td>
+            <span class="badge"
+                  th:classappend="${
+                      t.status.name() == 'DONE'     ? ' bg-success'  :
+                      t.status.name() == 'IN_PROGRESS' ? ' bg-primary'  :
+                      t.status.name() == 'ON_HOLD'  ? ' bg-secondary' :
+                      t.status.name() == 'CANCELLED'? ' bg-dark'     :
+                      ' bg-warning text-dark'
+                  }"
+                  th:text="${t.status}">TODO</span>
+        </td>
+
+        <!-- 마감일/생성일 -->
+        <td th:text="${#temporals.format(t.dueAt, 'yyyy-MM-dd HH:mm')}">2025-09-10 18:00</td>
+        <td th:text="${#temporals.format(t.createdAt, 'yyyy-MM-dd HH:mm')}">2025-09-01 11:00</td>
+
+        <!-- D-day (지났으면 빨강, 남았으면 초록/회색) -->
+        <td>
+            <span class="badge"
+                  th:classappend="${
+                    #temporals.isBefore(t.dueAt, #temporals.createNow()) ? ' bg-danger' : ' bg-success'
+                  }"
+                  th:text="${t.ddayLabel}">D-3</span>
+        </td>
+      </tr>
+
+      <tr th:if="${#lists.isEmpty(page.content)}">
+        <td colspan="5" class="text-center py-4 text-muted">
+          조회 결과가 없습니다.
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 페이지 네비 (링크 방식, 조건 유지) -->
+  <nav class="mt-3">
+    <ul class="pagination justify-content-center">
+
+      <!-- 이전 -->
+      <li class="page-item" th:classappend="${!page.hasPrev} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/todos(
+               status=${cond.status}, keyword=${cond.keyword},
+               dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+               sort=${cond.sort}, dir=${cond.dir},
+               size=${cond.size},
+               page=${page.page - 1}
+             )}">이전</a>
+      </li>
+
+      <!-- 현재/전체 간단 표기 -->
+      <li class="page-item disabled">
+        <a class="page-link" href="#" th:text="${page.page + 1} + ' / ' + ${page.totalPages}">1 / 1</a>
+      </li>
+
+      <!-- 다음 -->
+      <li class="page-item" th:classappend="${!page.hasNext} ? ' disabled'">
+        <a class="page-link"
+           th:href="@{/todos(
+               status=${cond.status}, keyword=${cond.keyword},
+               dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
+               sort=${cond.sort}, dir=${cond.dir},
+               size=${cond.size},
+               page=${page.page + 1}
+             )}">다음</a>
+      </li>
+    </ul>
+  </nav>
 </div>
 
-<!-- 2) 테이블 헤더: 클릭 시 정렬 토글(▲▼ 아이콘 표시) -->
-<table>
-  <thead>
-  <tr>
-    <!-- 제목 -->
-    <th>
-      <a th:href="@{/todos(
-          status=${cond.status}, keyword=${cond.keyword},
-          dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
-          size=${cond.size}, page=0,
-          sort='title',
-          dir=${cond.sort=='title' and cond.dir=='asc' ? 'desc' : 'asc'}
-      )}">
-        제목
-        <span th:if="${cond.sort=='title'}" th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
-      </a>
-    </th>
+<!-- 푸터 -->
+<div th:replace="fragments/footer:: footer"></div>
 
-    <!-- 상태 -->
-    <th style="width:110px;">
-      <a th:href="@{/todos(
-          status=${cond.status}, keyword=${cond.keyword},
-          dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
-          size=${cond.size}, page=0,
-          sort='status',
-          dir=${cond.sort=='status' and cond.dir=='asc' ? 'desc' : 'asc'}
-      )}">
-        상태
-        <span th:if="${cond.sort=='status'}" th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
-      </a>
-    </th>
-
-    <!-- 마감일 -->
-    <th style="width:180px;">
-      <a th:href="@{/todos(
-          status=${cond.status}, keyword=${cond.keyword},
-          dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
-          size=${cond.size}, page=0,
-          sort='dueAt',
-          dir=${cond.sort=='dueAt' and cond.dir=='asc' ? 'desc' : 'asc'}
-      )}">
-        마감일
-        <span th:if="${cond.sort=='dueAt'}" th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
-      </a>
-    </th>
-
-    <!-- 생성일 -->
-    <th style="width:180px;">
-      <a th:href="@{/todos(
-          status=${cond.status}, keyword=${cond.keyword},
-          dueFrom=${cond.dueFrom}, dueTo=${cond.dueTo},
-          size=${cond.size}, page=0,
-          sort='createdAt',
-          dir=${cond.sort=='createdAt' and cond.dir=='asc' ? 'desc' : 'asc'}
-      )}">
-        생성일
-        <span th:if="${cond.sort=='createdAt'}" th:text="${cond.dir=='asc' ? '▲' : '▼'}"></span>
-      </a>
-    </th>
-
-    <th style="width:90px;">D-day</th>
-  </tr>
-  </thead>
-
-  <tbody>
-  <tr th:each="t : ${page.content}">
-    <td th:text="${t.title}">제목</td>
-    <td th:text="${t.status}">TODO</td>
-    <td th:text="${#temporals.format(t.dueAt, 'yyyy-MM-dd HH:mm')}">2025-09-10 18:00</td>
-    <td th:text="${#temporals.format(t.dueAt, 'yyyy-MM-dd HH:mm')}">2025-09-01 11:00</td>
-    <td th:text="${t.ddayLabel}">D-3</td>
-  </tr>
-  <tr th:if="${#lists.isEmpty(page.content)}">
-    <td colspan="5">조회 결과가 없습니다.</td>
-  </tr>
-  </tbody>
-</table>
-
-<!-- 3) 페이지 네비게이션(조건 유지) -->
-<div class="pager">
-  <form method="get" th:action="@{/todos}">
-    <!-- 현재 조건 유지 -->
-    <input type="hidden" name="status"  th:value="${cond.status}">
-    <input type="hidden" name="keyword" th:value="${cond.keyword}">
-    <input type="hidden" name="dueFrom" th:value="${cond.dueFrom}">
-    <input type="hidden" name="dueTo"   th:value="${cond.dueTo}">
-    <input type="hidden" name="sort"    th:value="${cond.sort}">
-    <input type="hidden" name="dir"     th:value="${cond.dir}">
-    <input type="hidden" name="size"    th:value="${cond.size}">
-
-    <button type="submit" name="page" th:value="${page.page - 1}" th:disabled="${!page.hasPrev}">이전</button>
-
-    <span th:text="${page.page + 1}">1</span> /
-    <span th:text="${page.totalPages}">1</span>
-
-    <button type="submit" name="page" th:value="${page.page + 1}" th:disabled="${!page.hasNext}">다음</button>
-  </form>
-</div>
-
+<!-- Bootstrap JS (이미 head에 CSS가 있다고 가정) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

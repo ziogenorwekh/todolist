@@ -3,11 +3,14 @@ package com.choongang.todolist.dto;
 import com.choongang.todolist.domain.Priority;
 import com.choongang.todolist.domain.TodoStatus;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TodoCreateRequestDto {
@@ -17,11 +20,12 @@ public class TodoCreateRequestDto {
     @NotBlank(message = "타이틀은 필수입니다..")
     private String title;
     private String content;
-    @NotBlank
+    @NotNull
     private Priority priority;
-    @NotBlank
+    @NotNull
     private TodoStatus status;
-    @NotBlank
+    @NotNull
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime dueAt;
 
 }

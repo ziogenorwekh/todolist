@@ -1,0 +1,47 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary" th:fragment="header"
+     xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/todos}">ToDo App</a>
+
+        <!-- 햄버거 버튼 -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarDropdown"
+                aria-controls="navbarDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- 오른쪽 메뉴 -->
+        <div class="collapse navbar-collapse justify-content-end" id="navbarDropdown">
+            <ul class="navbar-nav mb-2 mb-lg-0 d-flex align-items-center">
+
+                <!-- 로그인 상태 환영 문구 -->
+<!--                <li class="nav-item me-3" sec:authorize="isAuthenticated()">-->
+<!--                    <span class="navbar-text text-white">-->
+<!--                        환영합니다, <b sec:authentication="principal.nickname">User</b>님-->
+<!--                    </span>-->
+<!--                </li>-->
+
+                <!-- 드롭다운 메뉴 -->
+                <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        메뉴
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" th:href="@{/createTodo}">투두 만들기</a></li>
+                        <li><a class="dropdown-item" th:href="@{/mypage}">마이페이지</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form th:action="@{/logout}" method="post">
+                                <button type="submit" class="dropdown-item">로그아웃</button>
+                            </form>
+                        </li>
+                    </ul>
+                </li>
+
+                <!-- 비로그인 상태 로그인 버튼 -->
+                <li class="nav-item" sec:authorize="isAnonymous()">
+                    <a class="btn btn-outline-light ms-2" th:href="@{/login}">로그인</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -17,5 +17,6 @@ public interface TodoDao {
     List<Todo> selectTodosByUser(Long userId, TodoSearchCond cond);  // 로그인 사용자(userId) 소유의 Todo 목록 조회 JHE
     long countTodosByUser(Long userId, TodoSearchCond cond);   // 사용자(userId) 소유의 조회 결과의 전체 개수
     Todo updateTodo (Todo todo);
+    int deleteTodo(Long todoId);
 }
 

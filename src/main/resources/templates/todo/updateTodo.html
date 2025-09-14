@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo 수정</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+
+<div class="container mt-5">
+    <h2>Todo 수정 ✏️</h2>
+    <hr>
+    <form th:action="@{/updateTodo/{id}(id=${todo.todoId})}" th:object="${todo}" method="post">
+        <input type="hidden" th:field="*{todoId}" />
+
+        <div class="mb-3">
+            <label for="title" class="form-label"><strong>제목</strong></label>
+            <input type="text" id="title" class="form-control" th:field="*{title}">
+        </div>
+
+        <div class="mb-3">
+            <label for="content" class="form-label"><strong>내용</strong></label>
+            <textarea id="content" class="form-control" rows="8" th:field="*{content}"></textarea>
+        </div>
+
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <label for="priority" class="form-label"><strong>중요도</strong></label>
+                <select id="priority" class="form-select" th:field="*{priority}">
+                    <option th:each="p : ${T(com.choongang.todolist.domain.Priority).values()}"
+                            th:value="${p.name()}"
+                            th:text="${p.name()}"></option>
+                </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="dueAt" class="form-label"><strong>마감일</strong></label>
+                <input type="datetime-local" id="dueAt" class="form-control" th:field="*{dueAt}">
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <label for="status" class="form-label"><strong>상태</strong></label>
+                <select id="status" class="form-select" th:field="*{status}">
+                    <option value="TODO">할 일</option>
+                    <option value="DOING">하는 중</option>
+                    <option value="DONE">완료</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+            <a th:href="@{/detail/{id}(id=${todo.todoId})}" class="btn btn-secondary me-2">취소</a>
+            <button type="submit" class="btn btn-primary">수정 완료</button>
+        </div>
+
+    </form>
+</div>
+</body>
+</html>

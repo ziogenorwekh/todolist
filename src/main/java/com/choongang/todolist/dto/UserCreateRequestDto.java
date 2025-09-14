@@ -2,7 +2,9 @@ package com.choongang.todolist.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
 
+@Data
 public class UserCreateRequestDto {
 
     // 해당 주석들은 @Valid에서 사용하는 일종의 제약과 같습니다.

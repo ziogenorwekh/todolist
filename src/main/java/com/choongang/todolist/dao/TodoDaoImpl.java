@@ -37,15 +37,15 @@ public class TodoDaoImpl implements TodoDao {
     /** 공용 매퍼 : 스프링 JDBC(JdbcTemplate)에서 SQL 실행 결과(ResultSet)을 → 자바 객체로 변환해주는 역할을 하는 게 RowMapper JHE */
     private static final RowMapper<Todo> TODO_MAPPER = (rs, rn) -> {
         Todo t = new Todo();
-        t.setTodoId(rs.getLong("todo_id"));
+        t.setTodoId(rs.getLong("id"));
         t.setUserId(rs.getLong("user_id"));
         t.setTitle(rs.getString("title"));
         t.setContent(rs.getString("content"));
         t.setPriority(Priority.valueOf(rs.getString("priority")));
         t.setStatus(TodoStatus.valueOf(rs.getString("status")));
         Timestamp dueAt = rs.getTimestamp("due_at");
-        Timestamp createAt = rs.getTimestamp("create_at");
-        Timestamp updateAt = rs.getTimestamp("update_at");
+        Timestamp createAt = rs.getTimestamp("created_at");
+        Timestamp updateAt = rs.getTimestamp("updated_at");
         Timestamp completedAt = rs.getTimestamp("completed_at");
         t.setDueAt(dueAt == null ? null : dueAt.toLocalDateTime());
         t.setCreatedAt(createAt == null ? null : createAt.toLocalDateTime());
@@ -57,8 +57,8 @@ public class TodoDaoImpl implements TodoDao {
     
     @Override
     public Todo saveTodo(Todo todo) {
-        String sql = "insert into Todos (userId, title, content, priority, " +
-                "status, dueAt, createdAt, updateAt, completedAt) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "insert into Todos (user_id, title, content, priority, " +
+                "status, due_at, created_at, updated_at, completed_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 //        아래의 주석을 보고 참고하세요.
 //        키 홀더는 database에서 auto_increment에서 자동으로 생성한 인덱스 값을 가져다주는 전달자 역할을 해요.
 //        PreparedStatement는 전통적으로 SQL 인젝션에 대해 방어하는 코드로 사용하곤 했습니다.
@@ -77,7 +77,11 @@ public class TodoDaoImpl implements TodoDao {
             //처음 생성할 때 업데이트 날짜를 생성날짜로 할지 Null로 할지 결정
             ps.setTimestamp(8,Timestamp.valueOf(LocalDateTime.now()));
             //완료날짜를 눌로 받아야 한다는 소리가 있음 눌일 경우 NPE오류 발생
-            ps.setTimestamp(9,Timestamp.valueOf(todo.getCompletedAt()));
+            if (todo.getCompletedAt() != null) {
+                ps.setTimestamp(9,Timestamp.valueOf(todo.getCompletedAt()));
+            } else {
+                ps.setNull(9, java.sql.Types.TIMESTAMP);
+            }
             return ps;
         }, keyHolder);
         todo.setTodoId(Objects.requireNonNull(keyHolder.getKey()).longValue());
@@ -90,7 +94,21 @@ public class TodoDaoImpl implements TodoDao {
      */
     @Override
     public Todo findTodoById(Long id) {
-        String sql = "select * from Todos where todoId = ?";
+        String sql = """
+        SELECT 
+            id AS todoId,
+            user_id AS userId,
+            title,
+            content,
+            priority,
+            status,
+            due_at AS dueAt,
+            created_at AS createdAt,
+            updated_at AS updatedAt,
+            completed_at AS completedAt
+        FROM todos
+        WHERE id = ?
+        """;
         try {
             return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(Todo.class), id);
         } catch (EmptyResultDataAccessException e) {
@@ -101,8 +119,8 @@ public class TodoDaoImpl implements TodoDao {
 
     @Override
     public Todo updateTodo(Todo todo) {
-        String sql = "UPDATE Todos SET userId = ?, title = ?, content = ?, priority = ?, " +
-                "status = ?, dueAt =?, updateAt = ?, completedAt =? WHERE todoId = ?";
+        String sql = "UPDATE Todos SET user_id = ?, title = ?, content = ?, priority = ?, " +
+                "status = ?, due_at =?, update_at = ?, completed_at =? WHERE id = ?";
         jdbcTemplate.update(sql,
                 todo.getUserId(),
                 todo.getTitle(),
@@ -221,5 +239,11 @@ public class TodoDaoImpl implements TodoDao {
 
         Number n = jdbcTemplate.queryForObject(sql.toString(), Number.class, args.toArray());
         return n == null ? 0L : n.longValue();
+    }
+
+    @Override
+    public int deleteTodo(Long todoId) {
+        String sql = "DELETE FROM todos WHERE id = ?";
+        return jdbcTemplate.update(sql, todoId);
     }
 }

@@ -25,7 +25,7 @@ public class TodoSearchCond {
     private String dir = "desc";		// 정렬 방향: asc | desc
 
     // 페이징
-    private int page = 1;  // 1부터 시작
+    private int page = 0;  // 0부터 시작
     private int size = 10; 
     
     // 유틸

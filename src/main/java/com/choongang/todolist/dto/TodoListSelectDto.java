@@ -9,13 +9,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@Setter
 @ToString
 public class TodoListSelectDto {
 	
-    private Long todoId;
+    private Long id;
     private String title;
     private TodoStatus status;     // TODO / DOING / DONE
     private LocalDateTime dueAt;
+    private LocalDateTime createdAt;   // ★ 추가
     private String ddayLabel;   // 마감 D-day 표시용 (예: D-3, D-Day, D+2)
 	
 }

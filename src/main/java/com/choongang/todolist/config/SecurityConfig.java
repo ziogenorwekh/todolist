@@ -29,7 +29,7 @@ public class SecurityConfig {
         http.cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable()
         );
         http.sessionManagement(sessionManagementConfigurer ->
-                sessionManagementConfigurer.maximumSessions(1)
+                sessionManagementConfigurer.maximumSessions(100)
                         .maxSessionsPreventsLogin(false));
         http.authorizeHttpRequests(authorizeRequests ->
                 authorizeRequests
@@ -40,7 +40,7 @@ public class SecurityConfig {
                         .loginProcessingUrl("/login_proc")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true));
+                        .defaultSuccessUrl("/todos", true));
         http.logout(logoutConfigurer -> {
             logoutConfigurer.logoutSuccessUrl("/login")
                     .logoutUrl("/logout").permitAll();

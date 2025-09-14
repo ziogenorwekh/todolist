@@ -24,7 +24,7 @@ public class TodoListSelectDtoTest {
         LocalDateTime dueAt = LocalDateTime.of(2025, 9, 13, 12, 0);
 
         TodoListSelectDto dto = TodoListSelectDto.builder()
-                .todoId(1L)
+                .id(1L)
                 .title("테스트 제목")
                 .status(TodoStatus.TODO)
                 .dueAt(dueAt)
@@ -32,7 +32,7 @@ public class TodoListSelectDtoTest {
                 .build();
 
         assertAll(
-                () -> assertEquals(1L, dto.getTodoId()),
+                () -> assertEquals(1L, dto.getId()),
                 () -> assertEquals("테스트 제목", dto.getTitle()),
                 () -> assertEquals(TodoStatus.TODO, dto.getStatus()),
                 () -> assertEquals(dueAt, dto.getDueAt()),
@@ -54,7 +54,7 @@ public class TodoListSelectDtoTest {
         );
 
         assertAll(
-                () -> assertEquals(2L, dto.getTodoId()),
+                () -> assertEquals(2L, dto.getId()),
                 () -> assertEquals("두 번째 할 일", dto.getTitle()),
                 () -> assertEquals(TodoStatus.DONE, dto.getStatus()),
                 () -> assertEquals(dueAt, dto.getDueAt()),
@@ -66,7 +66,7 @@ public class TodoListSelectDtoTest {
     @DisplayName("toString()이 필드 값을 포함한다")
     void toString_containsFields() {
         TodoListSelectDto dto = TodoListSelectDto.builder()
-                .todoId(3L)
+                .id(3L)
                 .title("테스트 toString")
                 .status(TodoStatus.DOING)
                 .ddayLabel("D+2")

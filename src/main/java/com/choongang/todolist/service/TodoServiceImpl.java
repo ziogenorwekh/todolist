@@ -14,7 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,10 +26,11 @@ public class TodoServiceImpl implements TodoService {
 
     @Override
     public Todo findById(Long id) {
-    	return todoDao.findTodoById(id);
+        return todoDao.findTodoById(id);
     }
 
     @Override
+    @Transactional
     public Todo createTodo(TodoCreateRequestDto todoCreateRequestDto, Long userId) {
         Todo todo = Todo.createTodo(todoCreateRequestDto, userId);
         // todoDao에서 생성된 Todo가 있다면 리턴해주세요.
@@ -38,8 +38,9 @@ public class TodoServiceImpl implements TodoService {
     }
 
     @Override
-    public Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long todoId, Long userId) {
-        Todo todo = todoDao.findTodoById(todoId);
+    @Transactional
+    public Todo updateTodo(TodoUpdateRequestDto todoUpdateRequestDto, Long id, Long userId) {
+        Todo todo = todoDao.findTodoById(id);
         if (!todo.getUserId().equals(userId)) {
             throw new TodoOwnershipException("Todo owner is unauthorized");
         }
@@ -50,9 +51,11 @@ public class TodoServiceImpl implements TodoService {
         todo.setDueAt(todoUpdateRequestDto.getDueAt());
         return todoDao.updateTodo(todo);
     }
-    
-    
-    /** 컨트롤러에서 간단 조회용으로 호출 (cond 기본값 사용) */
+
+
+    /**
+     * 컨트롤러에서 간단 조회용으로 호출 (cond 기본값 사용)
+     */
     @Override
     @Transactional(readOnly = true)
     public List<TodoListSelectDto> retrieveTodos(Long userId) {
@@ -60,29 +63,34 @@ public class TodoServiceImpl implements TodoService {
         PageResponse<TodoListSelectDto> page = retrieveTodos(userId, cond);
         return page.getContent();
     }
-    
-    /** 필터/정렬/페이징 전체 처리 */
+
+    /**
+     * 필터/정렬/페이징 전체 처리
+     */
     @Override
     @Transactional(readOnly = true)
     public PageResponse<TodoListSelectDto> retrieveTodos(Long userId, TodoSearchCond cond) {
-        List<Todo> rows  = todoDao.selectTodosByUser(userId, cond);
-        long total       = todoDao.countTodosByUser(userId, cond);
+        List<Todo> rows = todoDao.selectTodosByUser(userId, cond);
+        long total = todoDao.countTodosByUser(userId, cond);
 
         List<TodoListSelectDto> items = rows.stream()
-            .map(t -> TodoListSelectDto.builder()
-                .todoId(t.getTodoId())          // ← 엔티티 필드명에 맞춤
-                .title(t.getTitle())
-                .status(t.getStatus())
-                .dueAt(t.getDueAt())
-                .ddayLabel(computeDdayLabel(t.getDueAt()))
-                .build()
-            )
-            .toList();
+                .map(t -> TodoListSelectDto.builder()
+                        .id(t.getTodoId())          // ← 엔티티 필드명에 맞춤
+                        .title(t.getTitle())
+                        .status(t.getStatus())
+                        .dueAt(t.getDueAt())
+                        .ddayLabel(computeDdayLabel(t.getDueAt()))
+                        .createdAt(t.getCreatedAt())
+                        .build()
+                )
+                .toList();
 
         return new PageResponse<TodoListSelectDto>(items, cond.getPage(), cond.getSize(), total);
     }
-    
-    /** D-day 계산 */
+
+    /**
+     * D-day 계산
+     */
     private String computeDdayLabel(LocalDateTime dueAt) {
         if (dueAt == null) return "-";
         LocalDate today = LocalDate.now();
@@ -92,5 +100,10 @@ public class TodoServiceImpl implements TodoService {
         return diff > 0 ? "D-" + diff : "D+" + Math.abs(diff);
     }
 
-	
+    @Override
+    public boolean deleteTodo(Long todoId) {
+        int rows = todoDao.deleteTodo(todoId);
+
+        return rows > 0;
+    }
 }
