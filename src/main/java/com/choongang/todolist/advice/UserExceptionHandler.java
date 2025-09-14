@@ -1,5 +1,6 @@
 package com.choongang.todolist.advice;
 
+import com.choongang.todolist.exception.UserLoginException;
 import com.choongang.todolist.exception.UserNotFoundException;
 import com.choongang.todolist.exception.DuplicateEmailException;
 import com.choongang.todolist.exception.InvalidPasswordException;
@@ -26,5 +27,11 @@ public class UserExceptionHandler {
     public String handleInvalidPasswordException(InvalidPasswordException e, Model model) {
         model.addAttribute("error", e.getMessage());
         return "auth/delete-account";
+    }
+
+    @ExceptionHandler(UserLoginException.class)
+    public String handleUserLoginException(UserLoginException e, Model model) {
+        model.addAttribute("error", e.getMessage());
+        return "/login";
     }
 }

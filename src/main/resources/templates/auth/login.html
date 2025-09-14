@@ -8,7 +8,7 @@
 <body>
 <div class="container mt-5" style="max-width: 400px;">
   <h2 class="text-center mb-4">로그인</h2>
-  <form th:action="@{/login}" method="post">
+  <form th:action="@{/login_proc}" method="post">
     <div class="mb-3">
       <label for="email" class="form-label">이메일</label>
       <input type="email" class="form-control" id="email" name="email" placeholder="이메일 입력" required>
@@ -20,6 +20,7 @@
     <div class="d-grid">
       <button type="submit" class="btn btn-primary">로그인</button>
     </div>
+    <p class="text-danger mt-2" th:if="${param.error}" th:text="'이메일 또는 비밀번호가 잘못되었습니다.'"></p>
     <p class="text-danger mt-2" th:if="${error}" th:text="${error}"></p>
   </form>
   <div class="text-center mt-3">

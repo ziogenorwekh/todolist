@@ -38,10 +38,10 @@ public class UserServiceImpl implements UserService {
         if (userDao.findByEmail(userCreateRequestDto.getEmail()) != null) {
             throw new DuplicateEmailException("이미 존재하는 이메일입니다: " + userCreateRequestDto.getEmail());
         }
-
+        String encoded = passwordEncoder.encode(userCreateRequestDto.getPassword());
         User user = User.builder()
                 .email(userCreateRequestDto.getEmail())
-                .password(userCreateRequestDto.getPassword())
+                .password(encoded)
                 .username(userCreateRequestDto.getName())
                 .createAt(LocalDateTime.now())
                 .updateAt(null)

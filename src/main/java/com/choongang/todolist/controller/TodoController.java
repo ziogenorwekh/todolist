@@ -174,7 +174,7 @@ public class TodoController {
 		}
     	Todo todo = todoService.findById(id);
     	model.addAttribute("todo", todo);
-        return "/todo/detail";
+        return "redirect:/todo/detail";
     }
     @GetMapping("/detail/start")
     public String start(@RequestParam Long id, HttpSession session, Model model) {
@@ -195,7 +195,7 @@ public class TodoController {
     	if (todo.getStatus().equals(TodoStatus.TODO)) {
 			todo.setUpdatedAt(LocalDateTime.now());
 		} 
-    	return "/todo/detail";
+    	return "redirect:/todo/detail";
     }
     @GetMapping("/detail/done")
     public String done(@RequestParam Long id, HttpSession session, Model model) {
@@ -216,6 +216,6 @@ public class TodoController {
     	if (!todo.getStatus().equals(TodoStatus.DONE)) {
 			todo.setCompletedAt(LocalDateTime.now());
 		} 
-    	return "/todo/detail";
+    	return "redirect:/todo/detail";
     }
 }
