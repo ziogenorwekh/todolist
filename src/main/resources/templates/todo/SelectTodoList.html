@@ -170,10 +170,10 @@
             <span class="badge"
                   th:classappend="${
                       t.status.name() == 'DONE'     ? ' bg-success'  :
-                      t.status.name() == 'IN_PROGRESS' ? ' bg-primary'  :
-                      t.status.name() == 'ON_HOLD'  ? ' bg-secondary' :
-                      t.status.name() == 'CANCELLED'? ' bg-dark'     :
-                      ' bg-warning text-dark'
+                      (t.status.name() == 'IN_PROGRESS' ? ' bg-primary'  :
+                      (t.status.name() == 'ON_HOLD'  ? ' bg-secondary' :
+                      (t.status.name() == 'CANCELLED'? ' bg-dark'     :
+                      ' bg-warning text-dark')))
                   }"
                   th:text="${t.status}">TODO</span>
         </td>

@@ -63,15 +63,15 @@
             <div class="card-text" th:text="${todo.content}">내용</div>
         </div>
     </div>
+    <div class="buttons">
+        <a href="/todos" class="btn btn-success btn-sm">홈으로</a>
+        <form th:action="@{/delete/{id}(id=${todo.todoId})}" method="post" style="display:inline;">
+            <input type="hidden" name="todoId" th:value="${todo.todoId}">
+            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+        </form>
+    </div>
+</div>
 
-</div>
-<div class="buttons">
-    <a href="/todos" class="btn btn-success btn-sm">홈으로</a>
-    <form th:action="@{/delete/{id}(id=${todo.todoId})}" method="post" style="display:inline;">
-        <input type="hidden" name="todoId" th:value="${todo.todoId}">
-        <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-    </form>
-</div>
 <div th:replace="fragments/footer:: footer"></div>
 </body>
 </html>
