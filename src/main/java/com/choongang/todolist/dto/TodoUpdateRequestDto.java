@@ -17,15 +17,23 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TodoUpdateRequestDto {
 
-    @NotBlank
+    @NotNull
+    private Long todoId;
+
+    @NotBlank(message = "제목은 반드시 입력해야 합니다.")
     private String title;
-    @NotBlank
+
+    @NotBlank(message = "내용은 반드시 입력해야 합니다.")
     private String content;
-    @NotNull
+
+    @NotNull(message = "우선순위를 선택해주세요.")
     private Priority priority;
-    @NotNull
+
+    @NotNull(message = "상태를 선택해주세요.")
     private TodoStatus status;
-    @NotNull
+
+    @NotNull(message = "마감일을 입력해주세요.")
     private LocalDateTime dueAt;
+
     private LocalDateTime completedAt;
 }

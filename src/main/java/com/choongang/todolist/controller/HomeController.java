@@ -10,8 +10,8 @@ public class HomeController {
      * 홈으로 이동할거에요.
      * @return 홈으로 이동할거에요.
      */
-    @GetMapping("/")
-    public String home() {
-        return "home";
-    }
+//    @GetMapping("/")
+//    public String home() {
+//        return "todo/SelectTodoList";
+//    }
 }

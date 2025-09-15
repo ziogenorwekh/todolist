@@ -13,16 +13,18 @@
     <h2>Todo 수정 ✏️</h2>
     <hr>
     <form th:action="@{/updateTodo/{id}(id=${todo.todoId})}" th:object="${todo}" method="post">
-        <input type="hidden" th:field="*{todoId}" />
+        <input type="hidden" th:field="*{todoId}" />  <!-- 여기 필드명 정확히 DTO와 맞춰야 함 -->
 
         <div class="mb-3">
             <label for="title" class="form-label"><strong>제목</strong></label>
             <input type="text" id="title" class="form-control" th:field="*{title}">
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
         </div>
 
         <div class="mb-3">
             <label for="content" class="form-label"><strong>내용</strong></label>
             <textarea id="content" class="form-control" rows="8" th:field="*{content}"></textarea>
+            <div class="text-danger mt-1" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
         </div>
 
         <div class="row">
@@ -33,11 +35,13 @@
                             th:value="${p.name()}"
                             th:text="${p.name()}"></option>
                 </select>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></div>
             </div>
 
             <div class="col-md-4 mb-3">
                 <label for="dueAt" class="form-label"><strong>마감일</strong></label>
                 <input type="datetime-local" id="dueAt" class="form-control" th:field="*{dueAt}">
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('dueAt')}" th:errors="*{dueAt}"></div>
             </div>
 
             <div class="col-md-4 mb-3">
@@ -47,6 +51,7 @@
                     <option value="DOING">하는 중</option>
                     <option value="DONE">완료</option>
                 </select>
+                <div class="text-danger mt-1" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
             </div>
         </div>
 
@@ -54,8 +59,9 @@
             <a th:href="@{/detail/{id}(id=${todo.todoId})}" class="btn btn-secondary me-2">취소</a>
             <button type="submit" class="btn btn-primary">수정 완료</button>
         </div>
-
     </form>
+
+
 </div>
 </body>
 </html>

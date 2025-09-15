@@ -184,11 +184,7 @@
 
         <!-- D-day (지났으면 빨강, 남았으면 초록/회색) -->
         <td>
-            <span class="badge"
-                  th:classappend="${
-                    #temporals.isBefore(t.dueAt, #temporals.createNow()) ? ' bg-danger' : ' bg-success'
-                  }"
-                  th:text="${t.ddayLabel}">D-3</span>
+            <span class="badge" th:classappend="${t.ddayBadgeClass}" th:text="${t.ddayLabel}">D-3</span>
         </td>
       </tr>
 

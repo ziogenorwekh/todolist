@@ -63,9 +63,8 @@ public class UserServiceImpl implements UserService {
         if (user == null) {
             throw new UserNotFoundException("사용자를 찾을 수 없습니다: " + userId);
         }
-        String encoded = passwordEncoder.encode(password);
 
-        if (!passwordEncoder.matches(password, encoded)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new InvalidPasswordException("비밀번호가 일치하지 않습니다");
         }
 

@@ -53,7 +53,6 @@ public class Todo {
                 todoCreateRequestDto.getPriority(), todoCreateRequestDto.getStatus(), todoCreateRequestDto.getDueAt(),
                 LocalDateTime.now(), null, null);
         return todo;
-
     }
 
 }

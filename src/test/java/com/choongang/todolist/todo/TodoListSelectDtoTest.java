@@ -50,6 +50,7 @@ public class TodoListSelectDtoTest {
                 "두 번째 할 일",
                 TodoStatus.DONE,
                 dueAt,
+                LocalDateTime.now(),
                 "D-Day"
         );
 

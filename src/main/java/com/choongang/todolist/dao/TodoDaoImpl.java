@@ -57,7 +57,7 @@ public class TodoDaoImpl implements TodoDao {
     
     @Override
     public Todo saveTodo(Todo todo) {
-        String sql = "insert into Todos (user_id, title, content, priority, " +
+        String sql = "insert into todos (user_id, title, content, priority, " +
                 "status, due_at, created_at, updated_at, completed_at) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
 //        아래의 주석을 보고 참고하세요.
 //        키 홀더는 database에서 auto_increment에서 자동으로 생성한 인덱스 값을 가져다주는 전달자 역할을 해요.
@@ -119,8 +119,8 @@ public class TodoDaoImpl implements TodoDao {
 
     @Override
     public Todo updateTodo(Todo todo) {
-        String sql = "UPDATE Todos SET user_id = ?, title = ?, content = ?, priority = ?, " +
-                "status = ?, due_at =?, update_at = ?, completed_at =? WHERE id = ?";
+        String sql = "UPDATE todos SET user_id = ?, title = ?, content = ?, priority = ?, " +
+                "status = ?, due_at =?, updated_at = ?, completed_at =? WHERE id = ?";
         jdbcTemplate.update(sql,
                 todo.getUserId(),
                 todo.getTitle(),

@@ -21,13 +21,16 @@
                 <div class="mb-3">
                     <label for="title" class="form-label">제목</label>
                     <input type="text" th:field="*{title}" class="form-control" id="title">
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('title')}" th:errors="*{title}"></div>
                 </div>
 
                 <!-- 내용 -->
                 <div class="mb-3">
                     <label for="content" class="form-label">내용</label>
                     <input type="text" th:field="*{content}" class="form-control" id="content">
+                    <div class="text-danger mt-1" th:if="${#fields.hasErrors('content')}" th:errors="*{content}"></div>
                 </div>
+
 
                 <div class="row">
                     <!-- 우선순위 -->
@@ -37,6 +40,7 @@
                             <option th:each="p : ${T(com.choongang.todolist.domain.Priority).values()}"
                                     th:value="${p.name()}" th:text="${p.name()}"></option>
                         </select>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('priority')}" th:errors="*{priority}"></div>
                     </div>
 
                     <!-- 상태 -->
@@ -46,12 +50,14 @@
                             <option th:each="s : ${T(com.choongang.todolist.domain.TodoStatus).values()}"
                                     th:value="${s.name()}" th:text="${s.name()}"></option>
                         </select>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
                     </div>
 
                     <!-- 마감일 -->
                     <div class="col-md-4 mb-3">
                         <label for="dueAt" class="form-label">마감일</label>
-                        <input type="datetime-local" th:field="*{dueAt}" class="form-control" id="dueAt" />
+                        <input id="dueAt" type="datetime-local" th:field="*{dueAt}" class="form-control"/>
+                        <div class="text-danger mt-1" th:if="${#fields.hasErrors('dueAt')}" th:errors="*{dueAt}"></div>
                     </div>
                 </div>
                 <hr>

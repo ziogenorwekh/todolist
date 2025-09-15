@@ -15,17 +15,19 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TodoCreateRequestDto {
 
-    // 제약 조건에는 메세지를 담아줄 수 있어요.
-    // 다음과 같이 애너테이션에 message라는 메서드가 있어요. 이걸 활용하여 사용자에게 어떤 문제가 일어났는지 보여줄 수 있습니다.
-    @NotBlank(message = "타이틀은 필수입니다..")
+    @NotBlank(message = "제목은 반드시 입력해야 합니다.")
     private String title;
-    private String content;
-    @NotNull
-    private Priority priority;
-    @NotNull
-    private TodoStatus status;
-    @NotNull
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private LocalDateTime dueAt;
 
+    @NotBlank(message = "내용은 반드시 입력해야 합니다.")
+    private String content;
+
+    @NotNull(message = "우선순위를 선택해주세요.")
+    private Priority priority;
+
+    @NotNull(message = "상태를 선택해주세요.")
+    private TodoStatus status;
+
+    @NotNull(message = "마감일을 입력해주세요.")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime dueAt = LocalDateTime.now().plusDays(1);
 }

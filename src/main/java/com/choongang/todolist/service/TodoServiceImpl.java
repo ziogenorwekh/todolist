@@ -49,6 +49,7 @@ public class TodoServiceImpl implements TodoService {
         todo.setPriority(todoUpdateRequestDto.getPriority());
         todo.setStatus(todoUpdateRequestDto.getStatus());
         todo.setDueAt(todoUpdateRequestDto.getDueAt());
+        todo.setUpdatedAt(LocalDateTime.now());
         return todoDao.updateTodo(todo);
     }
 

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +45,8 @@ public class TodoController {
 
     // postMapping에서 어디에 보낼지를 uri 지정을 하셔야 합니다.
     @PostMapping("/createTodo")
-    public String createTodo(@Valid @ModelAttribute TodoCreateRequestDto todoCreateRequestDto,
-                             @AuthenticationPrincipal CustomUserDetails userDetails, Model model, BindingResult bindingResult) {
+    public String createTodo(@Valid @ModelAttribute TodoCreateRequestDto todoCreateRequestDto, BindingResult bindingResult,
+                             @AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
         // Dto의 값을 바인딩하고, 그 과정에서 실제로 null이 되면 안되는 값에 null이 있다면 에러를 보내주셔야 합니다.
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", bindingResult.getAllErrors());
@@ -138,15 +139,18 @@ public class TodoController {
 
     @PostMapping("/updateTodo/{id}")
     public String updateTodo(@Valid @ModelAttribute("todo") TodoUpdateRequestDto todoUpdateRequestDto,
-                             @PathVariable Long id, @AuthenticationPrincipal CustomUserDetails userDetails,
-                             Model model, BindingResult bindingResult) {
+                             BindingResult bindingResult,
+                             @PathVariable Long id,
+                             @AuthenticationPrincipal CustomUserDetails userDetails,
+                             Model model) {
+
         if (bindingResult.hasErrors()) {
-            model.addAttribute("errors", bindingResult.getAllErrors());
-            return "redirect:/updateTodo/" + id;
+            model.addAttribute("todo", todoUpdateRequestDto); // 폼 값 유지
+            return "todo/updateTodo";
         }
 
-        todoService.updateTodo(todoUpdateRequestDto, id, userDetails.getId());
-
+        Todo todo = todoService.updateTodo(todoUpdateRequestDto, id, userDetails.getId());
+        model.addAttribute("todo", todo);
         return "todo/detail";
     }
 
