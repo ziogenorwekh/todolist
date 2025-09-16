@@ -18,5 +18,11 @@ public interface TodoDao {
     long countTodosByUser(Long userId, TodoSearchCond cond);   // 사용자(userId) 소유의 조회 결과의 전체 개수
     Todo updateTodo (Todo todo);
     int deleteTodo(Long todoId);
+
+    Todo doneTodo(Todo todo);
+
+    Todo doingTodo(Todo todo);
+
+    List<Todo> findAllTodoByUserId(Long userId);
 }
 

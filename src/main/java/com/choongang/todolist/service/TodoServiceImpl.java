@@ -89,6 +89,28 @@ public class TodoServiceImpl implements TodoService {
         return new PageResponse<TodoListSelectDto>(items, cond.getPage(), cond.getSize(), total);
     }
 
+    @Override
+    @Transactional
+    public boolean deleteTodo(Long todoId) {
+        int rows = todoDao.deleteTodo(todoId);
+        return rows > 0;
+    }
+
+    @Override
+    @Transactional
+    public Todo updateDoing(Long Id, Long userId) {
+        Todo todo = todoDao.findTodoById(Id);
+        if (todo == null) {
+            throw new Exception("Todo를 찾을수 없습니다.");
+        }
+        // [수정] 소유권 검증을 먼저 하도록 순서 변경
+        if (!todo.getUserId().equals(userId)) {
+            throw new TodoOwnershipException("user is not owner.");
+        }
+
+        return todoDao.doingTodo(todo);
+    }
+
     /**
      * D-day 계산
      */
@@ -101,10 +123,20 @@ public class TodoServiceImpl implements TodoService {
         return diff > 0 ? "D-" + diff : "D+" + Math.abs(diff);
     }
 
+    @Transactional
     @Override
-    public boolean deleteTodo(Long todoId) {
-        int rows = todoDao.deleteTodo(todoId);
+    public Todo updateDone(Long id, Long userId) {
+        Todo todo = todoDao.findTodoById(id);
+        if (!todo.getUserId().equals(userId)) {
+            throw new TodoOwnershipException("user is not owner.");
+        }
+        todo.done();
 
-        return rows > 0;
+        return todoDao.doneTodo(todo);
+    }
+
+    @Override
+    public List<Todo> findAllByUserId(Long userId) {
+        return todoDao.findAllTodoByUserId(userId);
     }
 }

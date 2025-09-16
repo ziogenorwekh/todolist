@@ -1,9 +1,12 @@
 package com.choongang.todolist.controller;
 
 import com.choongang.todolist.config.security.CustomUserDetails;
+import com.choongang.todolist.domain.Todo;
+import com.choongang.todolist.domain.TodoStatus;
 import com.choongang.todolist.domain.User;
 import com.choongang.todolist.dto.UserCreateRequestDto;
 import com.choongang.todolist.dto.UserUpdateDto;
+import com.choongang.todolist.service.TodoService;
 import com.choongang.todolist.service.UserService;
 import com.choongang.todolist.exception.DuplicateEmailException;
 import com.choongang.todolist.exception.InvalidPasswordException;
@@ -16,17 +19,22 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @Controller
 public class UserController {
 
     private final UserService userService;
+    private final TodoService todoService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, TodoService todoService) {
         this.userService = userService;
+        this.todoService = todoService;
     }
 
     // 회원가입 페이지
@@ -83,18 +91,30 @@ public class UserController {
             return "user/delete-account";
         }
     }
-    
-    
-    /** 수정 폼 진입 (본인) */
+
+
+    // 2-1) 빈 문자열을 null로 자동 변환 (부분 업데이트에 유리)
+    @InitBinder
+    public void initBinder(WebDataBinder binder) {
+        binder.registerCustomEditor(String.class, new org.springframework.beans.propertyeditors.StringTrimmerEditor(true));
+    }
+
+    /** 수정 폼 진입 (본인만 수정가능) */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/users/me/edit")
     public String editMe(@AuthenticationPrincipal CustomUserDetails userDetails, Model model) {
+        User me = userService.getById(userDetails.getId());
         UserUpdateDto form = new UserUpdateDto();
+        form.setEmail(me.getEmail());
+        form.setProfileImageUrl(me.getProfileImageUrl());
         model.addAttribute("form", form);
-        return "user/edit";
+        return "user/edit"; // Thymeleaf 템플릿
+//        UserUpdateDto form = new UserUpdateDto();
+//        model.addAttribute("form", form);
+//        return "user/edit";
     }
 
-    /** 수정 제출 (본인) */
+    /** 수정 제출 (본인만 수정가능) */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/users/me/edit")
     public String updateMe(@AuthenticationPrincipal CustomUserDetails userDetails,
@@ -118,7 +138,13 @@ public class UserController {
     @GetMapping("/mypage")
     public String myPage(@AuthenticationPrincipal CustomUserDetails userDetails,
                          Model model) {
-        Long userId = userDetails.getId();
+//        Long userId = userDetails.getId();
+        List<Todo> todos = todoService.findAllByUserId(userDetails.getId());
+        model.addAttribute("todoTotalSize", todos.size());
+        System.out.println("todoTotalSize:" + todos.size());
+        model.addAttribute("doing", todos.stream().filter(todo -> todo.getStatus().equals(TodoStatus.DOING)).count());
+        model.addAttribute("done",todos.stream().filter(todo -> todo.getStatus().equals(TodoStatus.DONE)).count());
+        model.addAttribute("user", userDetails.getUser());
 
         return "user/mypage";
     }

@@ -93,37 +93,59 @@ public class UserDaoImpl implements UserDao {
         }
     }
 
-    /** 프로필(표시명/이메일/프로필이미지)만 수정 JHE */
-    public int updateProfile(Long userId, String displayName, String email, String profileImageUrl) {
+    /** 프로필(이름/이메일/프로필이미지)만 수정 JdbcTemplate ver. JHE */
+    public int updateProfile(Long userId, String name, String email, String profileImageUrl) {
         String sql = """
-            UPDATE users
-               SET display_name = :displayName,
-                   email = :email,
-                   profile_image_url = :profileImageUrl,
-                   updated_at = NOW()
-             WHERE id = :id
-        """;
-        var params = new MapSqlParameterSource()
-                .addValue("displayName", displayName)
-                .addValue("email", email)
-                .addValue("profileImageUrl", profileImageUrl)
-                .addValue("id", userId);
-        return jdbcTemplate.update(sql, params);
+        UPDATE users
+           SET name              = ?,
+               email             = ?,
+               profile_image_url = ?,
+               updated_at        = CURRENT_TIMESTAMP
+         WHERE id = ?
+    """;
+        return jdbcTemplate.update(sql, name, email, profileImageUrl, userId);
     }
+    /** 프로필(표시명/이메일/프로필이미지)만 수정 NamedParameterJdbcTemplate ver. JHE */
+//    public int updateProfile(Long userId, String displayName, String email, String profileImageUrl) {
+//        String sql = """
+//            UPDATE users
+//               SET display_name = :displayName,
+//                   email = :email,
+//                   profile_image_url = :profileImageUrl,
+//                   updated_at = NOW()
+//             WHERE id = :id
+//        """;
+//        var params = new MapSqlParameterSource()
+//                .addValue("displayName", displayName)
+//                .addValue("email", email)
+//                .addValue("profileImageUrl", profileImageUrl)
+//                .addValue("id", userId);
+//        return jdbcTemplate.update(sql, params);
+//    }
 
-    /** 비밀번호만 수정(해시 저장) JHE*/
-    public int updatePassword(Long userId, String passwordHash) {
+    /** 비밀번호만 수정(해시 저장) JdbcTemplate ver. JHE */
+    public int updatePassword(Long userId, String password) {
         String sql = """
-            UPDATE users
-               SET password_hash = :pwd,
-                   updated_at = NOW()
-             WHERE id = :id
-        """;
-        var params = new MapSqlParameterSource()
-                .addValue("pwd", passwordHash)
-                .addValue("id", userId);
-        return jdbcTemplate.update(sql, params);
+        UPDATE users
+           SET password   = ?,
+               updated_at = NOW()
+         WHERE id = ?
+    """;
+        return jdbcTemplate.update(sql, password, userId);
     }
+    /** 비밀번호만 수정(해시 저장) NamedParameterJdbcTemplate ver. JHE*/
+//    public int updatePassword(Long userId, String passwordHash) {
+//        String sql = """
+//            UPDATE users
+//               SET password_hash = :pwd,
+//                   updated_at = NOW()
+//             WHERE id = :id
+//        """;
+//        var params = new MapSqlParameterSource()
+//                .addValue("pwd", passwordHash)
+//                .addValue("id", userId);
+//        return jdbcTemplate.update(sql, params);
+//    }
 
     @Override
     public int deleteUser(Long userId) {

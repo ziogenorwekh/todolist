@@ -3,71 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Todo <span th:text="${todo.todoId}">id</span> Details</title>
+    <title th:text="'Todo ' + ${todo.todoId} + ' Details'">Todo Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .title{
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
+        body {
+            background-color: #ffffff;
+            color: #000000;
         }
-        .main-title{
-            display: flex;
-            font-size: 1.2em;
+
+        .card {
+            background-color: #d7d7d7;
+            border: 1px solid #333;
+            border-radius: 12px;
+        }
+
+        .main-title {
+            font-size: 1.3em;
             font-weight: bold;
-            margin-bottom: 10px;
-            justify-content: stretch;
         }
-        .date{
-            color: gray;
-            font-size: 0.6em;
+
+        .badge {
+            font-size: 0.75em;
+            margin-left: 5px;
+        }
+
+        .date {
+            color: #9e9e9e;
+            font-size: 0.8em;
+            margin-left: 8px;
+        }
+
+        .modify a {
             margin-left: 10px;
+            font-size: 1.1em;
+            text-decoration: none;
         }
-        .modify{
-            text-align: right;
+
+        .buttons a, .buttons button {
+            border-radius: 20px;
+            padding: 5px 15px;
         }
     </style>
 </head>
 <body>
 <div th:replace="fragments/header:: header"></div>
+
 <div class="container mt-5">
-    <div class="card">
+    <div class="card shadow-lg">
         <div class="card-body">
-            <div class="card-title row">
-                <h4 class="main-title col-5">
-                    제목 : <span th:text="${todo.title}"> 제목</span>
-                </h4>
-                <div class="col-4">
-                    중요도 :<span th:text="${todo.priority}">중요도</span>
-                    <span th:if="${todo.todoId}">아이디</span>
-                    <span th:if="${todo.status.name() == 'TODO'}">할 일</span>
-                    <span th:if="${todo.status.name() == 'IN_PROGRESS'}">하는 중</span>
-                    <span th:if="${todo.status.name() == 'DONE'}">완료</span>
+            <div class="row align-items-center mb-2">
+                <h4 class="main-title col-6" th:text="${todo.title}">제목</h4>
+                <div class="col-3">
+                    <span th:if="${todo.status.name() == 'TODO'}" class="badge bg-secondary">할 일</span>
+                    <span th:if="${todo.status.name() == 'DOING'}" class="badge bg-warning text-dark">하는 중</span>
+                    <span th:if="${todo.status.name() == 'DONE'}" class="badge bg-success">완료</span>
+                    <span class="badge bg-info text-dark" th:text="${todo.priority}">중요도</span>
                 </div>
                 <div class="col-3 text-end small">
                     <span th:if="${todo.createdAt != null}">
-                        작성날짜 : <span th:text="${#temporals.format(todo.createdAt, 'yy년 MM월 dd일')}" class="date">00년 00월 00일</span>
-                    </span>
-                                    <span th:if="${todo.dueAt != null}">
-                        마감일 :  <span th:text="${#temporals.format(todo.dueAt, 'yy년 MM월 dd일')}" class="date">00년 00월 00일</span>
+                        작성: <span th:text="${#temporals.format(todo.createdAt, 'yy년 MM월 dd일')}" class="date"></span>
+                    </span><br>
+                    <span th:if="${todo.dueAt != null}">
+                        마감: <span th:text="${#temporals.format(todo.dueAt, 'yy년 MM월 dd일')}" class="date"></span>
                     </span>
                 </div>
+            </div>
 
-                <div class="modify">
-                    <a th:href="@{/updateTodo/{id}(id=${todo.todoId})}" title="수정">✏️</a>
-                    <span th:if="${todo.status.name() == 'TODO'}"><a th:href="@{/detail/start}" title="시작 게시">📋</a></span>
-                    <span th:if="${todo.status.name() != 'DONE'}"><a th:href="@{/detail/done}" title="완료">✅</a></span>
-                </div>
+            <div class="modify text-end">
+                <a th:href="@{/updateTodo/{id}(id=${todo.todoId})}" title="수정">✏️</a>
+                <span th:if="${todo.status.name() == 'TODO'}">
+                <form th:action="@{/detail/start/{id}(id=${todo.todoId})}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" th:value="${todo.todoId}">
+                    <button type="submit" class="btn btn-primary btn-sm">▶️ 하는중</button>
+                </form>
+                </span>
+                <span th:if="${todo.status.name() == 'DOING'}">
+                <form th:action="@{/detail/done/{id}(id=${todo.todoId})}" method="post" style="display:inline;">
+                    <input type="hidden" name="id" th:value="${todo.todoId}">
+                    <button type="submit" class="btn btn-success btn-sm">✅ 완료</button>
+                </form>
+                </span>
+                <!--                <span th:if="${todo.status.name() != 'DONE'}"><a th:href="@{/detail/done(id=${todo.todoId})}" title="완료">✅</a></a></span>-->
             </div>
             <hr>
             <div class="card-text" th:text="${todo.content}">내용</div>
         </div>
     </div>
-    <div class="buttons">
-        <a href="/todos" class="btn btn-success btn-sm">홈으로</a>
+
+    <div class="buttons mt-4 d-flex justify-content-between">
+        <a href="/todos" class="btn btn-outline-light btn-sm">🏠 홈으로</a>
         <form th:action="@{/delete/{id}(id=${todo.todoId})}" method="post" style="display:inline;">
             <input type="hidden" name="todoId" th:value="${todo.todoId}">
-            <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+            <button type="submit" class="btn btn-danger btn-sm">🗑 삭제</button>
         </form>
     </div>
 </div>

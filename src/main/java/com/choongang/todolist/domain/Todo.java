@@ -55,4 +55,16 @@ public class Todo {
         return todo;
     }
 
+    public void done() {
+        this.status = TodoStatus.DONE;
+        this.updatedAt = LocalDateTime.now();
+        this.completedAt = LocalDateTime.now();
+    }
+
+    public void doing() {
+        this.status = TodoStatus.DOING;
+        this.updatedAt = LocalDateTime.now();
+    }
+
+
 }

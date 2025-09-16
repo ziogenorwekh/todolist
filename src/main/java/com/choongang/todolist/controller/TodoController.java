@@ -2,6 +2,7 @@ package com.choongang.todolist.controller;
 
 import com.choongang.todolist.config.security.CustomUserDetails;
 import com.choongang.todolist.dto.TodoUpdateRequestDto;
+import com.choongang.todolist.exception.TodoOwnershipException;
 import com.choongang.todolist.service.TodoService;
 
 import java.time.LocalDateTime;
@@ -56,7 +57,7 @@ public class TodoController {
         model.addAttribute("todo", todo);
         // 이건 어제 내가 잘못 설명했네요. id값을 상세페이지에서  처리해야 할 문제입니다. 지금은 생성된 todo를 상세페이지로 옮겨주는
         // 역할만 할 것이에요.
-        return "redirect:todo/detail/"+ todo.getTodoId();
+        return "redirect:/todo/detail/"+ todo.getTodoId();
     };
 
     @GetMapping("/createTodo")
@@ -86,8 +87,6 @@ public class TodoController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/todos")
     public String list(@AuthenticationPrincipal CustomUserDetails userDetails,
-                       /* @ModelAttribute @Valid TodoSearchRequest todoSearchRequest */
-                       /* BindingResult bindingResult 까지 합친다면, */
                        @RequestParam(required = false) TodoStatus status,
                        @RequestParam(required = false) String keyword,
                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueFrom,
@@ -97,9 +96,6 @@ public class TodoController {
                        @RequestParam(defaultValue = "0") int page,
                        @RequestParam(defaultValue = "10") int size,
                        Model model) {
-//        if (bindingResult.hasErrors()) {
-//            return "/todo/todos/list";
-//        } 뭐 이런식으로, 입력값을 간단하게 처리할 수 있습니다.
         TodoSearchCond cond = new TodoSearchCond();
         cond.setStatus(status);
         cond.setKeyword(keyword);
@@ -172,31 +168,18 @@ public class TodoController {
     	model.addAttribute("todo", todo);
         return "todo/detail";
     }
-    @GetMapping("/detail/start")
-    public String start(@RequestParam Long id, @AuthenticationPrincipal CustomUserDetails user, Model model) {
-    	Long todoUserid = todoService.findById(id).getUserId();
+    @PostMapping("/detail/start/{id}")
+    public String start(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
         Todo todo = todoService.findById(id);
-        Long todoUserId = todo.getUserId();
-        if (!todoUserid.equals(todoUserId)) {
-			return "404";
-		}
-    	if (todo.getStatus().equals(TodoStatus.TODO)) {
-			todo.setUpdatedAt(LocalDateTime.now());
-		} 
-    	return "redirect:/todo/detail";
+        todoService.updateDoing(id, user.getId());
+
+    	return "redirect:/todo/detail/" + id;
     }
-    @GetMapping("/detail/done")
-    public String done(@RequestParam Long id, @AuthenticationPrincipal CustomUserDetails user, Model model) {
-        Long todoUserid = todoService.findById(id).getUserId();
-        Todo todo = todoService.findById(id);
-        Long todoUserId = todo.getUserId();
-        if (!todoUserid.equals(todoUserId)) {
-			return "404";
-		}
-    	if (!todo.getStatus().equals(TodoStatus.DONE)) {
-			todo.setCompletedAt(LocalDateTime.now());
-		} 
-    	return "redirect:/todo/detail";
+
+    @PostMapping("/detail/done/{id}")
+    public String done(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails user) {
+            todoService.updateDone(id, user.getId());
+            return "redirect:/todo/detail/" + id;
     }
 
     @DeleteMapping("/delete/{id}")

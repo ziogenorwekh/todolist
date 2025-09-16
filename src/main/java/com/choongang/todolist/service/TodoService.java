@@ -7,6 +7,7 @@ import com.choongang.todolist.dto.TodoUpdateRequestDto;
 
 import com.choongang.todolist.dto.TodoListSelectDto;
 import com.choongang.todolist.dto.TodoSearchCond;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,5 +22,9 @@ public interface TodoService {
     List<TodoListSelectDto> retrieveTodos(Long userId);  // 조건 없이(기본값) 로그인 사용자의 투두 목록 JHE
 	PageResponse<TodoListSelectDto> retrieveTodos(Long userId, TodoSearchCond cond); // 조건/정렬/페이징/D-day까지 포함한 목록
     boolean deleteTodo(Long todoId);
+    Todo updateDoing(Long todoId, Long userId);
+    Todo updateDone(Long id, Long userId);
+
+    List<Todo> findAllByUserId(Long userId);
 }
 

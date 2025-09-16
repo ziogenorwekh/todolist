@@ -14,13 +14,14 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 //@AllArgsConstructor // 모든 필드를 포함하는 생성자 자동 생성
-@Builder // 빌더 패턴을 사용하여 객체 생성
+//@Builder // 빌더 패턴을 사용하여 객체 생성
 public class User {
 
     private Long userId;
     private String username;
     private String password;
     private String email;
+    private String profileImageUrl;    // JHE 추가
     private LocalDateTime createAt;
     private LocalDateTime updateAt;
 

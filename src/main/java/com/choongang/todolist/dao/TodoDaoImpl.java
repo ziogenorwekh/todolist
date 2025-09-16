@@ -3,15 +3,12 @@ package com.choongang.todolist.dao;
 import com.choongang.todolist.domain.Priority;
 import com.choongang.todolist.domain.Todo;
 import com.choongang.todolist.dto.TodoSearchCond;
-import lombok.RequiredArgsConstructor;
 import com.choongang.todolist.domain.TodoStatus;
-import com.choongang.todolist.dto.TodoSearchCond;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -23,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 public class TodoDaoImpl implements TodoDao {
@@ -117,24 +113,7 @@ public class TodoDaoImpl implements TodoDao {
     }
 
 
-    @Override
-    public Todo updateTodo(Todo todo) {
-        String sql = "UPDATE todos SET user_id = ?, title = ?, content = ?, priority = ?, " +
-                "status = ?, due_at =?, updated_at = ?, completed_at =? WHERE id = ?";
-        jdbcTemplate.update(sql,
-                todo.getUserId(),
-                todo.getTitle(),
-                todo.getContent(),
-                todo.getPriority().name(),
-                todo.getStatus().name(),
-                todo.getDueAt(),
-                LocalDateTime.now(),
-                todo.getCompletedAt(),
-                todo.getTodoId()
-                );
-        return todo;
 
-    }
     
     
     /** 로그인 사용자(userId) 소유의 Todo 목록 조회 JHE */
@@ -242,8 +221,58 @@ public class TodoDaoImpl implements TodoDao {
     }
 
     @Override
+    public Todo updateTodo(Todo todo) {
+        String sql = "UPDATE todos SET user_id = ?, title = ?, content = ?, priority = ?, " +
+                "status = ?, due_at =?, updated_at = ?, completed_at =? WHERE id = ?";
+        jdbcTemplate.update(sql,
+                todo.getUserId(),
+                todo.getTitle(),
+                todo.getContent(),
+                todo.getPriority().name(),
+                todo.getStatus().name(),
+                todo.getDueAt(),
+                LocalDateTime.now(),
+                todo.getCompletedAt(),
+                todo.getTodoId()
+        );
+        return todo;
+
+    }
+    @Override
     public int deleteTodo(Long todoId) {
         String sql = "DELETE FROM todos WHERE id = ?";
         return jdbcTemplate.update(sql, todoId);
+    }
+
+    @Override
+    public Todo doneTodo(Todo todo) {
+        String sql = "UPDATE todos SET status = ?, updated_at = ?, completed_at = ? WHERE id = ?";
+        int updated = jdbcTemplate.update(sql, todo.getStatus(), todo.getUpdatedAt(), todo.getCompletedAt(), todo.getTodoId());
+        if (updated == 1) {
+            return todo;
+        } else {
+            throw new EmptyResultDataAccessException("업데이트에 실패하였습니다.",1);
+        }
+    }
+
+    @Override
+    public Todo doingTodo(Todo todo) {
+        String sql = "UPDATE todos SET  status = ?, updated_at = ? WHERE id = ?";
+        int updated = jdbcTemplate.update(sql,
+                todo.getStatus().name(),
+                todo.getUpdatedAt(),
+                todo.getTodoId()
+        );
+        if (updated == 1) {
+            return todo;
+        } else {
+            throw new EmptyResultDataAccessException("업데이트에 실패하였습니다.", 1);
+        }
+    }
+
+    @Override
+    public List<Todo> findAllTodoByUserId(Long userId) {
+        String sql = "SELECT * FROM todos WHERE user_id = ?";
+        return jdbcTemplate.query(sql,TODO_MAPPER,userId);
     }
 }
